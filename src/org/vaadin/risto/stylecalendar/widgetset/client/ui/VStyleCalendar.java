@@ -1,4 +1,4 @@
-package com.itmill.incubator.stylecalendar.client.ui;
+package org.vaadin.risto.stylecalendar.widgetset.client.ui;
 
 import java.util.ArrayList;
 import java.util.List;

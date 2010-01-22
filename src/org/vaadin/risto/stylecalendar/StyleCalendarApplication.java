@@ -1,4 +1,4 @@
-package com.itmill.incubator.stylecalendar;
+package org.vaadin.risto.stylecalendar;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -215,8 +215,6 @@ public class StyleCalendarApplication extends Application {
         mainLayout.addComponent(hl3);
         mainLayout.addComponent(sc);
         mainLayout.addComponent(dateLabel);
-
-        setTheme("stylecalendartheme");
     }
 
     public boolean dateEquals(Date first, Date second) {

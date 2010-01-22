@@ -1,11 +1,10 @@
-package com.itmill.incubator.stylecalendar;
+package org.vaadin.risto.stylecalendar;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
-import com.itmill.incubator.stylecalendar.client.ui.VStyleCalendar;
 import com.vaadin.terminal.PaintException;
 import com.vaadin.terminal.PaintTarget;
 import com.vaadin.ui.AbstractField;
@@ -17,6 +16,7 @@ import com.vaadin.ui.AbstractField;
  * @author Risto Yrjänä / IT Mill Ltd.
  * 
  */
+@com.vaadin.ui.ClientWidget(org.vaadin.risto.stylecalendar.widgetset.client.ui.VStyleCalendar.class)
 public class StyleCalendar extends AbstractField {
 
     private static final long serialVersionUID = 7797206568110243067L;
@@ -31,6 +31,10 @@ public class StyleCalendar extends AbstractField {
 
     private Date showingDate = null;
 
+    /**
+     * Create a new StyleCalendar instance. Header, controls and week numbers
+     * are rendered by default.
+     */
     public StyleCalendar() {
         super();
         setRenderHeader(true);
@@ -38,11 +42,6 @@ public class StyleCalendar extends AbstractField {
         setRenderWeekNumbers(true);
 
         setShowingMonth(new Date());
-    }
-
-    @Override
-    public String getTag() {
-        return VStyleCalendar.TAGNAME;
     }
 
     /*

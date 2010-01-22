@@ -1,8 +1,0 @@
-<module>
-	<!-- Inherit super widgetset -->
-	<inherits name="com.vaadin.terminal.gwt.DefaultWidgetSet" /> 
-	
-	<!-- Entry point -->
-	<entry-point class="com.itmill.incubator.stylecalendar.client.StyleCalendarWidgetset"/>
-	
-</module>
