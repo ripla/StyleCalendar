@@ -188,6 +188,7 @@ public class StyleCalendar extends AbstractField {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void changeVariables(Object source, Map variables) {
         super.changeVariables(source, variables);
 
@@ -421,7 +422,7 @@ public class StyleCalendar extends AbstractField {
          *            currently rendered date
          * @param context
          *            the calling StyleCalendar instance
-         * @return the desired stylename, or null
+         * @return the desired style name, or null
          */
         public String getStyleName(Date date, StyleCalendar context);
     }
