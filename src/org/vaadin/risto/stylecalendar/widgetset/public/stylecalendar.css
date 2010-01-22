@@ -53,9 +53,11 @@
 	cursor: default;
 }
 
+/*
 .v-stylecalendar .week .weekend {
 	background-color: #f4f4f0;
 }
+*/
 
 .v-stylecalendar .week  .gwt-Label {
 	border: 1px solid transparent;
@@ -101,9 +103,11 @@
 	border-color: white;
 }
 
+/*
 .v-ie6 .v-stylecalendar  .weekend .gwt-Label {
 	border-color: #e9e9e1;
 }
+*/
 
 .v-ie6 .v-stylecalendar  .weeknumber .gwt-Label {
 	border-color: #d9d8cb;
