@@ -13,8 +13,8 @@
 	background-color: white;
 }
 
-.v-stylecalendar span,
-.v-stylecalendar div {
+.v-stylecalendar SPAN,
+.v-stylecalendar DIV {
 	font-family: Arial, Helvetica, Verdana, sans-serif;
 }
 
@@ -68,13 +68,20 @@
 }
 
 .v-stylecalendar .header TABLE {
-	width: 100%;
+	width: 90%;
+	margin: 0 5% 0 5%;
 }
 
 .v-stylecalendar .prevcontrol,
 .v-stylecalendar .nextcontrol ,
 .v-stylecalendar .day	{
 	cursor: pointer;
+}
+
+.v-stylecalendar .prevcontrol-disabled,
+.v-stylecalendar .nextcontrol-disabled {
+	cursor: default;
+	color: #e4e3da;
 }
 
 .v-stylecalendar .header .control {
@@ -86,12 +93,17 @@
 	width: 5em;	
 }
 
-.v-stylecalendar .header SPAN.currentmonth {
-	margin-right: 0.5em;
-}
-
 .v-stylecalendar TD.day:hover {
 	background-color: #80daf8;
+}
+
+.v-stylecalendar TD.day.disabled:hover  {
+	background-color: transparent;
+}
+
+.v-stylecalendar TD.day.disabled {
+	cursor: default;
+	color: #e4e3da;
 }
 
 .v-stylecalendar .week .today {

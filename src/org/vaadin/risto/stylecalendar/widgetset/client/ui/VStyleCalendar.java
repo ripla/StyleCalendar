@@ -234,6 +234,8 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
     private Widget renderPrevControl(UIDL childUIDL) {
 
         String controlText = childUIDL.getStringAttribute("prevMonth");
+        boolean controlEnabled = !childUIDL.hasAttribute("prevMonthDisabled")
+                && !childUIDL.getBooleanAttribute("prevMonthDisabled");
 
         FlowPanel controlPanel = new FlowPanel();
         controlPanel.setStylePrimaryName("prevcontrol");
@@ -247,25 +249,32 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         controlPanel.add(controlSymbol);
         controlPanel.add(controlCaption);
 
-        ClickHandler prevClick = new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                prevClick();
-            }
-        };
+        if (controlEnabled) {
+            ClickHandler prevClick = new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                    prevClick();
+                }
+            };
 
-        HandlerRegistration symbolClick = controlSymbol
-                .addClickHandler(prevClick);
-        HandlerRegistration captionClick = controlCaption
-                .addClickHandler(prevClick);
+            HandlerRegistration symbolClick = controlSymbol
+                    .addClickHandler(prevClick);
+            HandlerRegistration captionClick = controlCaption
+                    .addClickHandler(prevClick);
 
-        handlerRegistrations.add(symbolClick);
-        handlerRegistrations.add(captionClick);
+            handlerRegistrations.add(symbolClick);
+            handlerRegistrations.add(captionClick);
+
+        } else {
+            controlPanel.addStyleDependentName("disabled");
+        }
 
         return controlPanel;
     }
 
     private Widget renderNextControl(UIDL childUIDL) {
         String controlText = childUIDL.getStringAttribute("nextMonth");
+        boolean controlEnabled = !childUIDL.hasAttribute("nextMonthDisabled")
+                && !childUIDL.getBooleanAttribute("nextMonthDisabled");
 
         FlowPanel controlPanel = new FlowPanel();
         controlPanel.setStylePrimaryName("nextcontrol");
@@ -279,19 +288,24 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         controlPanel.add(controlCaption);
         controlPanel.add(controlSymbol);
 
-        ClickHandler nextClick = new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                nextClick();
-            }
-        };
+        if (controlEnabled) {
+            ClickHandler nextClick = new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                    nextClick();
+                }
+            };
 
-        HandlerRegistration symbolClick = controlSymbol
-                .addClickHandler(nextClick);
-        HandlerRegistration captionClick = controlCaption
-                .addClickHandler(nextClick);
+            HandlerRegistration symbolClick = controlSymbol
+                    .addClickHandler(nextClick);
+            HandlerRegistration captionClick = controlCaption
+                    .addClickHandler(nextClick);
 
-        handlerRegistrations.add(symbolClick);
-        handlerRegistrations.add(captionClick);
+            handlerRegistrations.add(symbolClick);
+            handlerRegistrations.add(captionClick);
+
+        } else {
+            controlPanel.addStyleDependentName("disabled");
+        }
 
         return controlPanel;
     }
@@ -341,10 +355,13 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
 
         Label dayLabel = new Label(Integer.toString(dayNumber));
 
-        if (childUIDL.getBooleanAttribute("clickable")) {
+        if (childUIDL.getBooleanAttribute("clickable")
+                && !childUIDL.getBooleanAttribute("disabled")) {
             HandlerRegistration dayClickHandler = dayLabel
                     .addClickHandler(new DayClickHandler(dayNumber));
             handlerRegistrations.add(dayClickHandler);
+        } else if (childUIDL.getBooleanAttribute("disabled")) {
+            dayStyle += " disabled";
         }
 
         cb.setWidget(dayRow, dayColumn, dayLabel);
