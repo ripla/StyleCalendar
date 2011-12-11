@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.vaadin.risto.stylecalendar;
 
 import java.text.DateFormat;
@@ -13,17 +10,16 @@ import com.vaadin.data.Property;
 import com.vaadin.terminal.PaintException;
 import com.vaadin.terminal.PaintTarget;
 import com.vaadin.ui.AbstractField;
+import com.vaadin.ui.ClientWidget;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 
 /**
- * @author Risto Yrjänä / IT Mill Ltd.
- *
+ * StyleCalendar is designed to be a simple, easily stylable calendar component.
+ * 
+ * @author Risto Yrjänä / Vaadin Ltd.
  */
-/**
- * Server side component for the VStyleCalendarField widget.
- */
-@com.vaadin.ui.ClientWidget(org.vaadin.risto.stylecalendar.widgetset.client.ui.VStyleCalendarField.class)
+@ClientWidget(org.vaadin.risto.stylecalendar.widgetset.client.ui.VStyleCalendarField.class)
 public class StyleCalendarField extends AbstractField implements
         ComponentContainer {
 
@@ -34,10 +30,6 @@ public class StyleCalendarField extends AbstractField implements
 
     private String nullRepresentation;
 
-    public StyleCalendarField() {
-
-    }
-
     @Override
     public void paintContent(PaintTarget target) throws PaintException {
         super.paintContent(target);
@@ -46,8 +38,8 @@ public class StyleCalendarField extends AbstractField implements
 
         target.addAttribute("value", paintValue);
 
+        target.addVariable(this, "showPopup", isShowPopup());
         if (isShowPopup()) {
-            target.addVariable(this, "showPopup", true);
             target.startTag("calendar");
 
             if (internalCalendar == null) {
@@ -110,7 +102,7 @@ public class StyleCalendarField extends AbstractField implements
      */
     private void removeStyleCalendar(StyleCalendar calendar) {
         calendar.setParent(null);
-        calendar.removeListener(this);
+        calendar.removeListener((ValueChangeListener) this);
     }
 
     /*
@@ -227,10 +219,12 @@ public class StyleCalendarField extends AbstractField implements
 
             private boolean first = (internalCalendar == null);
 
+            @Override
             public boolean hasNext() {
                 return !first;
             }
 
+            @Override
             public Component next() {
                 if (!first) {
                     first = true;
@@ -240,6 +234,7 @@ public class StyleCalendarField extends AbstractField implements
                 }
             }
 
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException();
             }

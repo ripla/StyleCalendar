@@ -1,10 +1,8 @@
 Manifest-Version: 1.0
-Class-Path: 
-Vaadin-License-Title: Apache 2.0
 Implementation-Title: StyleCalendar
+Implementation-Version: 0.6
 Vaadin-Package-Version: 1
-Implementation-Version: 0.5
 Vaadin-Widgetsets: org.vaadin.risto.stylecalendar.widgetset.StyleCalen
  darWidgetset
-Implementation-Vendor: Risto Yrjänä / IT Mill Ltd
+Class-Path: 
 

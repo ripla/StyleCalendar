@@ -14,17 +14,20 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.themes.Reindeer;
 
 public class StyleCalendarApplication extends Application {
 
+    private static final String CENTERWIDTH = "700px";
     private static final long serialVersionUID = -2802197153513393573L;
     protected List<Date> disabledList = new ArrayList<Date>();
 
@@ -45,61 +48,156 @@ public class StyleCalendarApplication extends Application {
         final List<Date> greenList = new ArrayList<Date>();
         final List<Date> redList = new ArrayList<Date>();
 
-        final StyleCalendar sc = new StyleCalendar();
-        sc.addListener(new Property.ValueChangeListener() {
+        final StyleCalendar mainCalendar = new StyleCalendar();
+        mainCalendar.addListener(new Property.ValueChangeListener() {
 
             private static final long serialVersionUID = -4914236743301835604L;
 
+            @Override
             public void valueChange(ValueChangeEvent event) {
                 Date selected = (Date) event.getProperty().getValue();
                 DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM,
-                        sc.getLocale());
+                        mainCalendar.getLocale());
                 dateLabel.setValue("Date selected " + df.format(selected));
             }
         });
 
-        sc.setDateOptionsGenerator(new StyleCalendar.DateOptionsGenerator() {
+        setDateOptionsGenerator(greenList, redList, mainCalendar);
 
-            public String getStyleName(Date date, StyleCalendar context) {
+        Layout options = createComponentOptionsPanel(greenList, redList,
+                mainCalendar);
 
-                for (Date redDate : redList) {
-                    if (dateEquals(date, redDate)) {
-                        return "red";
-                    }
-                }
+        Layout startEnd = createDateRangePanel(mainCalendar);
 
-                for (Date greenDate : greenList) {
-                    if (dateEquals(greenDate, date)) {
-                        return "green";
-                    }
-                }
+        Panel mainCalendarPanel = new Panel("Main calendar");
+        mainCalendarPanel.setWidth(CENTERWIDTH);
+        mainCalendarPanel.addComponent(new Label(
+                "All the component options affect this calendar only."));
+        mainCalendarPanel.addComponent(mainCalendar);
+        mainCalendarPanel.addComponent(dateLabel);
 
-                return null;
+        Panel optionsPanel = new Panel("Component options");
+        ((AbstractOrderedLayout) optionsPanel.getContent()).setSpacing(true);
+        optionsPanel.setWidth(CENTERWIDTH);
+        optionsPanel.addComponent(startEnd);
+        optionsPanel.addComponent(options);
+
+        mainLayout.addComponent(mainCalendarPanel);
+        mainLayout.addComponent(optionsPanel);
+
+        mainLayout.setComponentAlignment(mainCalendarPanel,
+                Alignment.TOP_CENTER);
+        mainLayout.setComponentAlignment(optionsPanel, Alignment.TOP_CENTER);
+    }
+
+    private Layout createDateRangePanel(final StyleCalendar mainCalendar) {
+        final StyleCalendar startDate = new StyleCalendar("Enabled dates start");
+        final StyleCalendar endDate = new StyleCalendar("Enabled dates end");
+
+        startDate.setImmediate(true);
+        endDate.setImmediate(true);
+
+        startDate.addListener(new Property.ValueChangeListener() {
+
+            private static final long serialVersionUID = 5451403327381090983L;
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                mainCalendar.setEnabledDateRange((Date) event.getProperty()
+                        .getValue(), (Date) endDate.getValue());
             }
-
-            public boolean isDateDisabled(Date date, StyleCalendar context) {
-                return disabledList.contains(date);
-            }
-
         });
 
-        Button prev = new Button("Previous month");
-        prev.addListener(new Button.ClickListener() {
+        endDate.addListener(new Property.ValueChangeListener() {
+
+            private static final long serialVersionUID = -6600207899150787566L;
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                mainCalendar.setEnabledDateRange((Date) startDate.getValue(),
+                        (Date) event.getProperty().getValue());
+            }
+        });
+
+        Button reset = new Button("Reset disabled dates");
+        reset.addListener(new Button.ClickListener() {
+
+            private static final long serialVersionUID = -6445668268341479730L;
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                startDate.setValue(null);
+                endDate.setValue(null);
+            }
+        });
+
+        VerticalLayout startEnd = new VerticalLayout();
+        startEnd.setSpacing(true);
+        startEnd.setMargin(false, false, true, false);
+        Label caption = new Label("Enabled date range");
+        caption.setStyleName(Reindeer.LABEL_H2);
+        HorizontalLayout startEndCalendars = new HorizontalLayout();
+        startEndCalendars.setSpacing(true);
+
+        startEndCalendars.addComponent(startDate);
+        startEndCalendars.addComponent(endDate);
+
+        startEnd.addComponent(caption);
+        startEnd.addComponent(new Label(
+                "Use these two calendars to set the range for enabled dates in the main calendar."));
+        startEnd.addComponent(startEndCalendars);
+        startEnd.addComponent(reset);
+        startEnd.setWidth(CENTERWIDTH);
+
+        return startEnd;
+    }
+
+    private Layout createComponentOptionsPanel(final List<Date> greenList,
+            final List<Date> redList, final StyleCalendar mainCalendar) {
+        Label caption = new Label("Other options");
+        caption.setStyleName(Reindeer.LABEL_H2);
+
+        Button prevMonth = new Button("Previous month");
+        prevMonth.addListener(new Button.ClickListener() {
 
             private static final long serialVersionUID = 5302233151902004930L;
 
+            @Override
             public void buttonClick(ClickEvent event) {
-                sc.showPreviousMonth();
+                mainCalendar.showPreviousMonth();
             }
         });
 
-        Button next = new Button("Next month");
-        next.addListener(new Button.ClickListener() {
+        Button nextMonth = new Button("Next month");
+        nextMonth.addListener(new Button.ClickListener() {
 
             private static final long serialVersionUID = 1375120288648378326L;
 
+            @Override
             public void buttonClick(ClickEvent event) {
-                sc.showNextMonth();
+                mainCalendar.showNextMonth();
+            }
+        });
+
+        Button prevYear = new Button("Previous year");
+        prevYear.addListener(new Button.ClickListener() {
+
+            private static final long serialVersionUID = 5302233151902004930L;
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                mainCalendar.showPreviousYear();
+            }
+        });
+
+        Button nextYear = new Button("Next year");
+        nextYear.addListener(new Button.ClickListener() {
+
+            private static final long serialVersionUID = 1375120288648378326L;
+
+            @Override
+            public void buttonClick(ClickEvent event) {
+                mainCalendar.showNextYear();
             }
         });
 
@@ -110,8 +208,10 @@ public class StyleCalendarApplication extends Application {
 
             private static final long serialVersionUID = 1L;
 
+            @Override
             public void valueChange(ValueChangeEvent event) {
-                sc.setRenderHeader((Boolean) event.getProperty().getValue());
+                mainCalendar.setRenderHeader((Boolean) event.getProperty()
+                        .getValue());
 
             }
         });
@@ -123,8 +223,10 @@ public class StyleCalendarApplication extends Application {
 
             private static final long serialVersionUID = 1L;
 
+            @Override
             public void valueChange(ValueChangeEvent event) {
-                sc.setRenderControls((Boolean) event.getProperty().getValue());
+                mainCalendar.setRenderControls((Boolean) event.getProperty()
+                        .getValue());
 
             }
         });
@@ -136,8 +238,9 @@ public class StyleCalendarApplication extends Application {
 
             private static final long serialVersionUID = 1L;
 
+            @Override
             public void valueChange(ValueChangeEvent event) {
-                sc.setRenderWeekNumbers((Boolean) event.getProperty()
+                mainCalendar.setRenderWeekNumbers((Boolean) event.getProperty()
                         .getValue());
 
             }
@@ -149,8 +252,10 @@ public class StyleCalendarApplication extends Application {
 
             private static final long serialVersionUID = 1L;
 
+            @Override
             public void valueChange(ValueChangeEvent event) {
-                sc.setImmediate((Boolean) event.getProperty().getValue());
+                mainCalendar.setImmediate((Boolean) event.getProperty()
+                        .getValue());
 
             }
         });
@@ -160,18 +265,19 @@ public class StyleCalendarApplication extends Application {
         locales.setNullSelectionAllowed(false);
         locales.setImmediate(true);
         locales.addContainerProperty("locale", Locale.class, null);
-        locales.addItem("Finnish").getItemProperty("locale").setValue(
-                new Locale("fi", "FI"));
+        locales.addItem("Finnish").getItemProperty("locale")
+                .setValue(new Locale("fi", "FI"));
         locales.addItem("UK").getItemProperty("locale").setValue(Locale.UK);
         locales.addItem("US").getItemProperty("locale").setValue(Locale.US);
         locales.addListener(new Property.ValueChangeListener() {
 
             private static final long serialVersionUID = 4267830073546299627L;
 
+            @Override
             public void valueChange(ValueChangeEvent event) {
                 Item selected = locales.getItem(event.getProperty().getValue());
-                sc.setLocale((Locale) selected.getItemProperty("locale")
-                        .getValue());
+                mainCalendar.setLocale((Locale) selected.getItemProperty(
+                        "locale").getValue());
             }
         });
         locales.select("Finnish");
@@ -180,12 +286,13 @@ public class StyleCalendarApplication extends Application {
         makeRed.addListener(new Button.ClickListener() {
             private static final long serialVersionUID = 2751283318694896800L;
 
+            @Override
             public void buttonClick(ClickEvent event) {
-                Date selected = (Date) sc.getValue();
+                Date selected = (Date) mainCalendar.getValue();
                 if (selected != null) {
                     greenList.remove(selected);
                     redList.add(selected);
-                    sc.requestRepaint();
+                    mainCalendar.requestRepaint();
                 }
             }
         });
@@ -194,12 +301,13 @@ public class StyleCalendarApplication extends Application {
         makeGreen.addListener(new Button.ClickListener() {
             private static final long serialVersionUID = 2751283318694896800L;
 
+            @Override
             public void buttonClick(ClickEvent event) {
-                Date selected = (Date) sc.getValue();
+                Date selected = (Date) mainCalendar.getValue();
                 if (selected != null) {
                     redList.remove(selected);
                     greenList.add(selected);
-                    sc.requestRepaint();
+                    mainCalendar.requestRepaint();
                 }
             }
         });
@@ -208,22 +316,25 @@ public class StyleCalendarApplication extends Application {
         makeDisabled.addListener(new Button.ClickListener() {
             private static final long serialVersionUID = 2751283318694896800L;
 
+            @Override
             public void buttonClick(ClickEvent event) {
-                Date selected = (Date) sc.getValue();
+                Date selected = (Date) mainCalendar.getValue();
                 if (selected != null) {
                     if (disabledList.contains(selected)) {
                         disabledList.remove(selected);
                     } else {
                         disabledList.add(selected);
                     }
-                    sc.requestRepaint();
+                    mainCalendar.requestRepaint();
                 }
             }
         });
 
         HorizontalLayout hl1 = new HorizontalLayout();
-        hl1.addComponent(prev);
-        hl1.addComponent(next);
+        hl1.addComponent(prevMonth);
+        hl1.addComponent(nextMonth);
+        hl1.addComponent(prevYear);
+        hl1.addComponent(nextYear);
         hl1.setSpacing(true);
 
         HorizontalLayout hl2 = new HorizontalLayout();
@@ -243,64 +354,45 @@ public class StyleCalendarApplication extends Application {
         hl3.setComponentAlignment(makeGreen, Alignment.BOTTOM_CENTER);
         hl3.setComponentAlignment(makeDisabled, Alignment.BOTTOM_CENTER);
 
-        Panel options = new Panel("Component options");
-        options.setSizeUndefined();
-        ((AbstractOrderedLayout) options.getContent()).setSpacing(true);
+        VerticalLayout options = new VerticalLayout();
+        options.setSpacing(true);
+        options.addComponent(caption);
         options.addComponent(hl1);
         options.addComponent(hl2);
         options.addComponent(hl3);
+        return options;
+    }
 
-        final StyleCalendar startDate = new StyleCalendar("Enabled dates start");
-        final StyleCalendar endDate = new StyleCalendar("Enabled dates end");
+    private void setDateOptionsGenerator(final List<Date> greenList,
+            final List<Date> redList, final StyleCalendar mainCalendar) {
+        mainCalendar
+                .setDateOptionsGenerator(new StyleCalendar.DateOptionsGenerator() {
 
-        startDate.setImmediate(true);
-        endDate.setImmediate(true);
+                    @Override
+                    public String getStyleName(Date date, StyleCalendar context) {
 
-        startDate.addListener(new Property.ValueChangeListener() {
+                        for (Date redDate : redList) {
+                            if (dateEquals(date, redDate)) {
+                                return "red";
+                            }
+                        }
 
-            public void valueChange(ValueChangeEvent event) {
-                sc.setEnabledDateRange((Date) event.getProperty().getValue(),
-                        (Date) endDate.getValue());
-            }
-        });
+                        for (Date greenDate : greenList) {
+                            if (dateEquals(greenDate, date)) {
+                                return "green";
+                            }
+                        }
 
-        endDate.addListener(new Property.ValueChangeListener() {
+                        return null;
+                    }
 
-            public void valueChange(ValueChangeEvent event) {
-                sc.setEnabledDateRange((Date) startDate.getValue(),
-                        (Date) event.getProperty().getValue());
-            }
-        });
+                    @Override
+                    public boolean isDateDisabled(Date date,
+                            StyleCalendar context) {
+                        return disabledList.contains(date);
+                    }
 
-        Panel startEnd = new Panel("Enabled date range");
-        HorizontalLayout startEndLayout = new HorizontalLayout();
-        startEndLayout.setWidth("100%");
-        startEndLayout.setSpacing(true);
-        startEnd
-                .addComponent(new Label(
-                        "Use these two calendars to set the range for enabled dates in the main calendar."));
-        startEnd.addComponent(startEndLayout);
-        startEnd.setWidth("500px");
-
-        startEndLayout.addComponent(startDate);
-        startEndLayout.addComponent(endDate);
-
-        Panel mainCalendarPanel = new Panel("Main calendar");
-        mainCalendarPanel.setSizeUndefined();
-        mainCalendarPanel.addComponent(new Label(
-                "All the component options affect this calendar only."));
-        mainCalendarPanel.addComponent(sc);
-        mainCalendarPanel.addComponent(dateLabel);
-
-        HorizontalLayout optionsLayout = new HorizontalLayout();
-        optionsLayout.setSpacing(true);
-        optionsLayout.addComponent(mainCalendarPanel);
-        optionsLayout.addComponent(startEnd);
-
-        mainLayout.addComponent(options);
-        mainLayout.addComponent(optionsLayout);
-        mainLayout.addComponent(new StyleCalendarField());
-
+                });
     }
 
     public boolean dateEquals(Date first, Date second) {
