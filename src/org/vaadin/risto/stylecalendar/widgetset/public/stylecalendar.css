@@ -124,7 +124,3 @@
 .v-ie6 .v-stylecalendar  .weeknumber .gwt-Label {
 	border-color: #d9d8cb;
 }
-
-.v-stylecalendar .week .selected .gwt-Label {
-	border: 1px solid #ee7c08;
-}
