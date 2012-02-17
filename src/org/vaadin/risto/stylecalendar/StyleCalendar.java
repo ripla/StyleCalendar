@@ -222,7 +222,7 @@ public class StyleCalendar extends AbstractField {
                     if (isDisabledDate(calendar.getTime())) {
                         target.addAttribute("disabled", true);
                         disabledRenderedDays.add(calendar
-                                .get(Calendar.DAY_OF_MONTH));
+                                .get(Calendar.DAY_OF_YEAR));
                     }
                 }
 
@@ -249,7 +249,7 @@ public class StyleCalendar extends AbstractField {
             Integer clickedDay = (Integer) variables.get("clickedDay");
 
             if (!isDisabled(clickedDay)) {
-                Date selectedDate = constructNewValue((Integer) variables
+                Date selectedDate = constructNewDateValue((Integer) variables
                         .get("clickedDay"));
                 setValue(selectedDate);
             } else {
@@ -499,7 +499,7 @@ public class StyleCalendar extends AbstractField {
         return month1 == month2;
     }
 
-    protected Date constructNewValue(int newDay) {
+    protected Date constructNewDateValue(int newDay) {
         Date showingDate = getShowingDate();
         Calendar calendar = getCalendarInstance();
         calendar.setTime(showingDate);
@@ -507,6 +507,16 @@ public class StyleCalendar extends AbstractField {
         calendar.set(Calendar.DAY_OF_MONTH, newDay);
 
         return calendar.getTime();
+    }
+
+    protected Calendar constructNewCalendarValue(int newDay) {
+        Date showingDate = getShowingDate();
+        Calendar calendar = getCalendarInstance();
+        calendar.setTime(showingDate);
+
+        calendar.set(Calendar.DAY_OF_MONTH, newDay);
+
+        return calendar;
     }
 
     protected boolean isWeekend(Date date) {
@@ -521,8 +531,10 @@ public class StyleCalendar extends AbstractField {
      *            the day of month that was clicked
      * @return true if the day is disabled, false otherwise
      */
-    protected boolean isDisabled(Integer clickedDay) {
-        return disabledRenderedDays.contains(clickedDay);
+    protected boolean isDisabled(int clickedDayNro) {
+        Calendar clickedDate = constructNewCalendarValue(clickedDayNro);
+        int dayOfYearClicked = clickedDate.get(Calendar.DAY_OF_YEAR);
+        return disabledRenderedDays.contains(dayOfYearClicked);
     }
 
     /**
