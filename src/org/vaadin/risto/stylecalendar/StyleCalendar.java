@@ -113,40 +113,41 @@ public class StyleCalendar extends AbstractField {
         int firstDayOfWeek = calendar.getFirstDayOfWeek();
 
         // set main tag attributes
-        target.addAttribute("renderWeekNumbers", isRenderWeekNumbers());
-        target.addAttribute("renderHeader", isRenderHeader());
-        target.addAttribute("renderControls", isRenderControls());
+        target.addAttribute(VStyleCalendar.ATTR_RENDER_WEEK_NUMBERS, isRenderWeekNumbers());
+        target.addAttribute(VStyleCalendar.ATTR_RENDER_HEADER, isRenderHeader());
+        target.addAttribute(VStyleCalendar.ATTR_RENDER_CONTROLS, isRenderControls());
 
         // render header
         if (isRenderHeader()) {
-            target.startTag("header");
-            target.addAttribute("currentYear", calendar.get(Calendar.YEAR));
-            target.addAttribute("currentMonth",
+            target.startTag(VStyleCalendar.TAG_HEADER);
+            target.addAttribute(VStyleCalendar.ATTR_HEADER_CURRENT_YEAR,
+                    calendar.get(Calendar.YEAR));
+            target.addAttribute(VStyleCalendar.ATTR_HEADER_CURRENT_MONTH,
                     getMonthCaption(calendar.getTime(), 0, true));
 
             // render controls
             if (isRenderControls()) {
-                target.startTag("controls");
+                target.startTag(VStyleCalendar.TAG_CONTROLS);
 
-                target.addAttribute("prevMonth",
+                target.addAttribute(VStyleCalendar.ATTR_CONTROLS_PREV_MONTH,
                         getMonthCaption(calendar.getTime(), -1, false));
 
                 if (isDisabledMonth(calendar.getTime(), -1)) {
-                    target.addAttribute("prevMonthDisabled", true);
+                    target.addAttribute(VStyleCalendar.ATTR_CONTROLS_PREV_MONTH_DISABLED, true);
                     prevMonthEnabled = false;
                 }
 
-                target.addAttribute("nextMonth",
+                target.addAttribute(VStyleCalendar.ATTR_CONTROLS_NEXT_MONTH,
                         getMonthCaption(calendar.getTime(), 1, false));
 
                 if (isDisabledMonth(calendar.getTime(), 1)) {
-                    target.addAttribute("nextMonthDisabled", true);
+                    target.addAttribute(VStyleCalendar.ATTR_CONTROLS_NEXT_MONTH_DISABLED, true);
                     nextMonthEnabled = false;
                 }
 
-                target.endTag("controls");
+                target.endTag(VStyleCalendar.TAG_CONTROLS);
             }
-            target.endTag("header");
+            target.endTag(VStyleCalendar.TAG_HEADER);
         }
 
         // render weekday names
@@ -160,7 +161,7 @@ public class StyleCalendar extends AbstractField {
             calendarForWeekdays.add(Calendar.DAY_OF_WEEK, 1);
         }
 
-        target.addVariable(this, "weekDayNames", weekDaysArray);
+        target.addVariable(this, VStyleCalendar.ATTR_WEEK_DAY_NAMES, weekDaysArray);
 
         // so we get the right amount of weeks to render
         calendar.setMinimalDaysInFirstWeek(1);
@@ -172,16 +173,17 @@ public class StyleCalendar extends AbstractField {
         for (int week = 1; week < numberOfWeeks + 1; week++) {
             calendar.setTime(showingDate);
             calendar.set(Calendar.WEEK_OF_MONTH, week);
-            target.startTag("week");
+            target.startTag(VStyleCalendar.TAG_WEEK);
 
-            target.addAttribute("number", calendar.get(Calendar.WEEK_OF_YEAR));
+            target.addAttribute(VStyleCalendar.ATTR_WEEK_NUMBER,
+                    calendar.get(Calendar.WEEK_OF_YEAR));
 
             // reset to the start of the week
             calendar.set(Calendar.DAY_OF_WEEK, firstDayOfWeek);
 
             for (int day = 0; day < daysInWeek; day++) {
-                target.startTag("day");
-                target.addAttribute("daynumber",
+                target.startTag(VStyleCalendar.TAG_DAY);
+                target.addAttribute(VStyleCalendar.ATTR_DAY_NUMBER,
                         calendar.get(Calendar.DAY_OF_MONTH));
 
                 // compute styles for given day
@@ -199,11 +201,11 @@ public class StyleCalendar extends AbstractField {
                 if (monthEquals(calendar.getTime(), showingDate)) {
                     dayStyle.append(" ");
                     dayStyle.append("currentmonth");
-                    target.addAttribute("clickable", true);
+                    target.addAttribute(VStyleCalendar.ATTR_DAY_CLICKABLE, true);
                 } else {
                     dayStyle.append(" ");
                     dayStyle.append("othermonth");
-                    target.addAttribute("clickable", false);
+                    target.addAttribute(VStyleCalendar.ATTR_DAY_CLICKABLE, false);
                 }
 
                 if (isWeekend(calendar.getTime())) {
@@ -220,7 +222,7 @@ public class StyleCalendar extends AbstractField {
                     }
 
                     if (isDisabledDate(calendar.getTime())) {
-                        target.addAttribute("disabled", true);
+                        target.addAttribute(VStyleCalendar.ATTR_DAY_DISABLED, true);
                         disabledRenderedDays.add(calendar
                                 .get(Calendar.DAY_OF_YEAR));
                     }
@@ -228,15 +230,15 @@ public class StyleCalendar extends AbstractField {
 
                 String dayStyleString = dayStyle.toString();
                 if (!dayStyleString.isEmpty()) {
-                    target.addAttribute("style", dayStyleString);
+                    target.addAttribute(VStyleCalendar.ATTR_DAY_STYLE, dayStyleString);
                 }
 
-                target.endTag("day");
+                target.endTag(VStyleCalendar.TAG_DAY);
 
                 // move to the next day
                 calendar.add(Calendar.DAY_OF_WEEK, 1);
             }
-            target.endTag("week");
+            target.endTag(VStyleCalendar.TAG_WEEK);
         }
     }
 

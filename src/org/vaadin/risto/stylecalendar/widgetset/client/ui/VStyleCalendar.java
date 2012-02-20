@@ -21,33 +21,72 @@ import com.vaadin.terminal.gwt.client.UIDL;
 
 public class VStyleCalendar extends SimplePanel implements Paintable {
 
-    /** Set the tagname used to statically resolve widget from UIDL. */
-    public static final String TAGNAME = "stylecalendar";
+    public static final String TAG_HEADER = "header";
+
+    public static final String TAG_CONTROLS = "controls";
+
+    public static final String TAG_WEEK = "week";
+
+    public static final String TAG_DAY = "day";
+
+    public static final String ATTR_RENDER_WEEK_NUMBERS = "renderWeekNumbers";
+
+    public static final String ATTR_RENDER_HEADER = "renderHeader";
+
+    public static final String ATTR_RENDER_CONTROLS = "renderControls";
+
+    public static final String ATTR_DAY_CLICKABLE = "clickable";
+
+    public static final String ATTR_DAY_DISABLED = "disabled";
+
+    public static final String ATTR_DAY_NUMBER = "daynumber";
+
+    public static final String ATTR_DAY_STYLE = "style";
+
+    public static final String ATTR_CONTROLS_PREV_MONTH = "prevMonth";
+
+    public static final String ATTR_CONTROLS_PREV_MONTH_DISABLED = "prevMonthDisabled";
+
+    public static final String ATTR_CONTROLS_NEXT_MONTH = "nextMonth";
+
+    public static final String ATTR_CONTROLS_NEXT_MONTH_DISABLED = "nextMonthDisabled";
+
+    public static final String ATTR_WEEK_DAY_NAMES = "weekDayNames";
+
+    public static final String ATTR_WEEK_NUMBER = "number";
+
+    public static final String ATTR_HEADER_CURRENT_YEAR = "currentYear";
+
+    public static final String ATTR_HEADER_CURRENT_MONTH = "currentMonth";
+
+    public static final String VAR_PREV_CLICK = "prevClick";
+
+    public static final String VAR_CLICKED_DAY = "clickedDay";
 
     /** Set the CSS class name to allow styling. */
-    public static final String CLASSNAME = "v-" + TAGNAME;
+    public static final String CLASSNAME = "v-stylecalendar";
 
     private static final String PREVMONTHCONTROL = "<<";
     private static final String NEXTMONTHCONTROL = ">>";
 
     /** Component identifier in UIDL communications. */
-    String uidlId;
+    protected String uidlId;
 
     /** Reference to the server connection object. */
-    ApplicationConnection client;
+    protected ApplicationConnection client;
 
-    private boolean renderWeekNumbers;
+    protected boolean renderWeekNumbers;
 
-    private boolean renderControls;
+    protected boolean renderControls;
 
-    private boolean renderHeader;
+    protected boolean renderHeader;
 
     /**
      * List of click handlers. Handlers are removed on each repaint.
      */
-    private final List<HandlerRegistration> handlerRegistrations;
+    protected final List<HandlerRegistration> handlerRegistrations;
 
-    private boolean immediate;
+    protected boolean immediate;
 
     /**
      * The constructor should first call super() to initialize the component and
@@ -56,13 +95,12 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
     public VStyleCalendar() {
         super();
 
-        // This method call of the Paintable interface sets the component
-        // style name in DOM tree
         setStyleName(CLASSNAME);
 
         handlerRegistrations = new ArrayList<HandlerRegistration>();
     }
 
+    @Override
     public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
         // This call should be made first. Ensure correct implementation,
         // and let the containing layout manage caption, etc.
@@ -81,9 +119,9 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         immediate = uidl.getBooleanAttribute("immediate");
 
         // set global rendering attributes from base tag
-        renderWeekNumbers = uidl.getBooleanAttribute("renderWeekNumbers");
-        renderHeader = uidl.getBooleanAttribute("renderHeader");
-        renderControls = uidl.getBooleanAttribute("renderControls");
+        renderWeekNumbers = uidl.getBooleanAttribute(ATTR_RENDER_WEEK_NUMBERS);
+        renderHeader = uidl.getBooleanAttribute(ATTR_RENDER_HEADER);
+        renderControls = uidl.getBooleanAttribute(ATTR_RENDER_CONTROLS);
 
         if (!handlerRegistrations.isEmpty()) {
             for (HandlerRegistration hr : handlerRegistrations) {
@@ -108,7 +146,8 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
             currentRow++;
         }
 
-        String[] weekDayNames = uidl.getStringArrayVariable("weekDayNames");
+        String[] weekDayNames = uidl
+                .getStringArrayVariable(ATTR_WEEK_DAY_NAMES);
 
         renderWeekDays(weekDayNames, calendarBody, currentRow);
         currentRow++;
@@ -124,7 +163,6 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
             calendarBody.getFlexCellFormatter().setColSpan(0, 0, numCols);
 
         }
-
     }
 
     /**
@@ -133,7 +171,7 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
      * @param day
      */
     public void dayClick(int day) {
-        client.updateVariable(uidlId, "clickedDay", day, immediate);
+        client.updateVariable(uidlId, VAR_CLICKED_DAY, day, immediate);
     }
 
     /**
@@ -141,7 +179,7 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
      * immediate.
      */
     public void prevClick() {
-        client.updateVariable(uidlId, "prevClick", true, true);
+        client.updateVariable(uidlId, VAR_PREV_CLICK, true, true);
     }
 
     /**
@@ -187,8 +225,9 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         HorizontalPanel headerPanel = new HorizontalPanel();
 
         cb.getRowFormatter().setStyleName(headerRow, "header");
-        String currentMonth = childUIDL.getStringAttribute("currentMonth");
-        int currentYear = childUIDL.getIntAttribute("currentYear");
+        String currentMonth = childUIDL
+                .getStringAttribute(ATTR_HEADER_CURRENT_MONTH);
+        int currentYear = childUIDL.getIntAttribute(ATTR_HEADER_CURRENT_YEAR);
 
         if (renderControls) {
             Widget leftControl = renderPrevControl(childUIDL.getChildUIDL(0));
@@ -233,9 +272,12 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
 
     private Widget renderPrevControl(UIDL childUIDL) {
 
-        String controlText = childUIDL.getStringAttribute("prevMonth");
-        boolean controlEnabled = !childUIDL.hasAttribute("prevMonthDisabled")
-                && !childUIDL.getBooleanAttribute("prevMonthDisabled");
+        String controlText = childUIDL
+                .getStringAttribute(ATTR_CONTROLS_PREV_MONTH);
+        boolean controlEnabled = !childUIDL
+                .hasAttribute(ATTR_CONTROLS_PREV_MONTH_DISABLED)
+                && !childUIDL
+                        .getBooleanAttribute(ATTR_CONTROLS_PREV_MONTH_DISABLED);
 
         FlowPanel controlPanel = new FlowPanel();
         controlPanel.setStylePrimaryName("prevcontrol");
@@ -251,6 +293,7 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
 
         if (controlEnabled) {
             ClickHandler prevClick = new ClickHandler() {
+                @Override
                 public void onClick(ClickEvent event) {
                     prevClick();
                 }
@@ -272,9 +315,12 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
     }
 
     private Widget renderNextControl(UIDL childUIDL) {
-        String controlText = childUIDL.getStringAttribute("nextMonth");
-        boolean controlEnabled = !childUIDL.hasAttribute("nextMonthDisabled")
-                && !childUIDL.getBooleanAttribute("nextMonthDisabled");
+        String controlText = childUIDL
+                .getStringAttribute(ATTR_CONTROLS_NEXT_MONTH);
+        boolean controlEnabled = !childUIDL
+                .hasAttribute(ATTR_CONTROLS_NEXT_MONTH_DISABLED)
+                && !childUIDL
+                        .getBooleanAttribute(ATTR_CONTROLS_NEXT_MONTH_DISABLED);
 
         FlowPanel controlPanel = new FlowPanel();
         controlPanel.setStylePrimaryName("nextcontrol");
@@ -290,6 +336,7 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
 
         if (controlEnabled) {
             ClickHandler nextClick = new ClickHandler() {
+                @Override
                 public void onClick(ClickEvent event) {
                     nextClick();
                 }
@@ -315,7 +362,7 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         cb.getRowFormatter().setStylePrimaryName(weekRow, "week");
 
         if (renderWeekNumbers) {
-            int wn = childUIDL.getIntAttribute("number");
+            int wn = childUIDL.getIntAttribute(ATTR_WEEK_NUMBER);
             cb.addCell(weekRow);
 
             Label weekNumber = new Label(Integer.toString(wn));
@@ -338,7 +385,7 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
     private void renderDay(UIDL childUIDL, FlexTable cb, int dayRow,
             int dayColumn) {
 
-        int dayNumber = childUIDL.getIntAttribute("daynumber");
+        int dayNumber = childUIDL.getIntAttribute(ATTR_DAY_NUMBER);
 
         // Label day = new Label(Integer.toString(dayNumber));
 
@@ -355,12 +402,12 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
 
         Label dayLabel = new Label(Integer.toString(dayNumber));
 
-        if (childUIDL.getBooleanAttribute("clickable")
-                && !childUIDL.getBooleanAttribute("disabled")) {
+        if (childUIDL.getBooleanAttribute(ATTR_DAY_CLICKABLE)
+                && !childUIDL.getBooleanAttribute(ATTR_DAY_DISABLED)) {
             HandlerRegistration dayClickHandler = dayLabel
                     .addClickHandler(new DayClickHandler(dayNumber));
             handlerRegistrations.add(dayClickHandler);
-        } else if (childUIDL.getBooleanAttribute("disabled")) {
+        } else if (childUIDL.getBooleanAttribute(ATTR_DAY_DISABLED)) {
             dayStyle += " disabled";
         }
 
@@ -380,6 +427,7 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
             this.day = day;
         }
 
+        @Override
         public void onClick(ClickEvent event) {
             dayClick(day);
         }
