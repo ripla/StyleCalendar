@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -17,6 +18,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
+import com.vaadin.terminal.gwt.client.TooltipInfo;
 import com.vaadin.terminal.gwt.client.UIDL;
 
 public class VStyleCalendar extends SimplePanel implements Paintable {
@@ -43,6 +45,10 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
 
     public static final String ATTR_DAY_STYLE = "style";
 
+    public static final String ATTR_DAY_INDEX = "dayIndex";
+
+    public static final String ATTR_DAY_TOOLTIP = "dayTooltip";
+
     public static final String ATTR_CONTROLS_PREV_MONTH = "prevMonth";
 
     public static final String ATTR_CONTROLS_PREV_MONTH_DISABLED = "prevMonthDisabled";
@@ -62,6 +68,10 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
     public static final String VAR_PREV_CLICK = "prevClick";
 
     public static final String VAR_CLICKED_DAY = "clickedDay";
+
+    public static final String VAR_DAYINDEX = "dayIndex";
+
+    public static final String VAR_NEXT_CLICK = "nextClick";
 
     /** Set the CSS class name to allow styling. */
     public static final String CLASSNAME = "v-stylecalendar";
@@ -169,9 +179,11 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
      * Send day clicked message to server. Immediateness depends on server-side.
      * 
      * @param day
+     * @param dayIndex
      */
-    public void dayClick(int day) {
-        client.updateVariable(uidlId, VAR_CLICKED_DAY, day, immediate);
+    public void dayClick(int day, int dayIndex) {
+        client.updateVariable(uidlId, VAR_CLICKED_DAY, day, false);
+        client.updateVariable(uidlId, VAR_DAYINDEX, dayIndex, immediate);
     }
 
     /**
@@ -187,7 +199,7 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
      * immediate.
      */
     public void nextClick() {
-        client.updateVariable(uidlId, "nextClick", true, true);
+        client.updateVariable(uidlId, VAR_NEXT_CLICK, true, true);
     }
 
     /**
@@ -387,7 +399,7 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
 
         int dayNumber = childUIDL.getIntAttribute(ATTR_DAY_NUMBER);
 
-        // Label day = new Label(Integer.toString(dayNumber));
+        Integer dayIndex = childUIDL.getIntAttribute(ATTR_DAY_INDEX);
 
         String dayStyle = null;
         if (childUIDL.hasAttribute("style")) {
@@ -400,15 +412,22 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
             dayStyle = "day";
         }
 
-        Label dayLabel = new Label(Integer.toString(dayNumber));
+        Label dayLabel = new DayLabel(dayIndex, this);
+        dayLabel.setText(Integer.toString(dayNumber));
 
         if (childUIDL.getBooleanAttribute(ATTR_DAY_CLICKABLE)
                 && !childUIDL.getBooleanAttribute(ATTR_DAY_DISABLED)) {
             HandlerRegistration dayClickHandler = dayLabel
-                    .addClickHandler(new DayClickHandler(dayNumber));
+                    .addClickHandler(new DayClickHandler(dayNumber, dayIndex));
             handlerRegistrations.add(dayClickHandler);
         } else if (childUIDL.getBooleanAttribute(ATTR_DAY_DISABLED)) {
             dayStyle += " disabled";
+        }
+
+        if (childUIDL.hasAttribute(ATTR_DAY_TOOLTIP)) {
+            String tooltip = childUIDL.getStringAttribute(ATTR_DAY_TOOLTIP);
+            TooltipInfo dayTooltip = new TooltipInfo(tooltip);
+            client.registerTooltip(this, dayIndex, dayTooltip);
         }
 
         cb.setWidget(dayRow, dayColumn, dayLabel);
@@ -422,15 +441,21 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
     private class DayClickHandler implements ClickHandler {
 
         private final int day;
+        private final int dayIndex;
 
-        public DayClickHandler(int day) {
+        public DayClickHandler(int day, int dayIndex) {
             this.day = day;
+            this.dayIndex = dayIndex;
         }
 
         @Override
         public void onClick(ClickEvent event) {
-            dayClick(day);
+            dayClick(day, dayIndex);
         }
 
+    }
+
+    public void handleTooltipEvent(Event event, DayLabel dayLabel) {
+        client.handleTooltipEvent(event, this, dayLabel.getIndex());
     }
 }

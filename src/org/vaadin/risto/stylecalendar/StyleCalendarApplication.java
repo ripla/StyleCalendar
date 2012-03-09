@@ -392,6 +392,15 @@ public class StyleCalendarApplication extends Application {
                         return disabledList.contains(date);
                     }
 
+                    @Override
+                    public String getTooltip(Date date, StyleCalendar context) {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(date);
+                        return String.format("Week %d, day %d",
+                                calendar.get(Calendar.WEEK_OF_YEAR),
+                                calendar.get(Calendar.DAY_OF_MONTH));
+                    }
+
                 });
     }
 

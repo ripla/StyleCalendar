@@ -113,9 +113,11 @@ public class StyleCalendar extends AbstractField {
         int firstDayOfWeek = calendar.getFirstDayOfWeek();
 
         // set main tag attributes
-        target.addAttribute(VStyleCalendar.ATTR_RENDER_WEEK_NUMBERS, isRenderWeekNumbers());
+        target.addAttribute(VStyleCalendar.ATTR_RENDER_WEEK_NUMBERS,
+                isRenderWeekNumbers());
         target.addAttribute(VStyleCalendar.ATTR_RENDER_HEADER, isRenderHeader());
-        target.addAttribute(VStyleCalendar.ATTR_RENDER_CONTROLS, isRenderControls());
+        target.addAttribute(VStyleCalendar.ATTR_RENDER_CONTROLS,
+                isRenderControls());
 
         // render header
         if (isRenderHeader()) {
@@ -133,7 +135,9 @@ public class StyleCalendar extends AbstractField {
                         getMonthCaption(calendar.getTime(), -1, false));
 
                 if (isDisabledMonth(calendar.getTime(), -1)) {
-                    target.addAttribute(VStyleCalendar.ATTR_CONTROLS_PREV_MONTH_DISABLED, true);
+                    target.addAttribute(
+                            VStyleCalendar.ATTR_CONTROLS_PREV_MONTH_DISABLED,
+                            true);
                     prevMonthEnabled = false;
                 }
 
@@ -141,7 +145,9 @@ public class StyleCalendar extends AbstractField {
                         getMonthCaption(calendar.getTime(), 1, false));
 
                 if (isDisabledMonth(calendar.getTime(), 1)) {
-                    target.addAttribute(VStyleCalendar.ATTR_CONTROLS_NEXT_MONTH_DISABLED, true);
+                    target.addAttribute(
+                            VStyleCalendar.ATTR_CONTROLS_NEXT_MONTH_DISABLED,
+                            true);
                     nextMonthEnabled = false;
                 }
 
@@ -161,7 +167,8 @@ public class StyleCalendar extends AbstractField {
             calendarForWeekdays.add(Calendar.DAY_OF_WEEK, 1);
         }
 
-        target.addVariable(this, VStyleCalendar.ATTR_WEEK_DAY_NAMES, weekDaysArray);
+        target.addVariable(this, VStyleCalendar.ATTR_WEEK_DAY_NAMES,
+                weekDaysArray);
 
         // so we get the right amount of weeks to render
         calendar.setMinimalDaysInFirstWeek(1);
@@ -169,6 +176,8 @@ public class StyleCalendar extends AbstractField {
         // render weeks and days
 
         int numberOfWeeks = calendar.getActualMaximum(Calendar.WEEK_OF_MONTH);
+
+        int dayIndex = 0;
 
         for (int week = 1; week < numberOfWeeks + 1; week++) {
             calendar.setTime(showingDate);
@@ -185,6 +194,7 @@ public class StyleCalendar extends AbstractField {
                 target.startTag(VStyleCalendar.TAG_DAY);
                 target.addAttribute(VStyleCalendar.ATTR_DAY_NUMBER,
                         calendar.get(Calendar.DAY_OF_MONTH));
+                target.addAttribute(VStyleCalendar.ATTR_DAY_INDEX, dayIndex);
 
                 // compute styles for given day
                 StringBuilder dayStyle = new StringBuilder();
@@ -205,7 +215,8 @@ public class StyleCalendar extends AbstractField {
                 } else {
                     dayStyle.append(" ");
                     dayStyle.append("othermonth");
-                    target.addAttribute(VStyleCalendar.ATTR_DAY_CLICKABLE, false);
+                    target.addAttribute(VStyleCalendar.ATTR_DAY_CLICKABLE,
+                            false);
                 }
 
                 if (isWeekend(calendar.getTime())) {
@@ -221,22 +232,30 @@ public class StyleCalendar extends AbstractField {
                         dayStyle.append(generatedStyle);
                     }
 
-                    if (isDisabledDate(calendar.getTime())) {
-                        target.addAttribute(VStyleCalendar.ATTR_DAY_DISABLED, true);
-                        disabledRenderedDays.add(calendar
-                                .get(Calendar.DAY_OF_YEAR));
+                    String tooltip = getDateOptionsGenerator().getTooltip(
+                            calendar.getTime(), this);
+                    if (tooltip != null) {
+                        target.addAttribute(VStyleCalendar.ATTR_DAY_TOOLTIP,
+                                tooltip);
                     }
+                }
+
+                if (isDisabledDate(calendar.getTime())) {
+                    target.addAttribute(VStyleCalendar.ATTR_DAY_DISABLED, true);
+                    disabledRenderedDays.add(dayIndex);
                 }
 
                 String dayStyleString = dayStyle.toString();
                 if (!dayStyleString.isEmpty()) {
-                    target.addAttribute(VStyleCalendar.ATTR_DAY_STYLE, dayStyleString);
+                    target.addAttribute(VStyleCalendar.ATTR_DAY_STYLE,
+                            dayStyleString);
                 }
 
                 target.endTag(VStyleCalendar.TAG_DAY);
 
                 // move to the next day
                 calendar.add(Calendar.DAY_OF_WEEK, 1);
+                ++dayIndex;
             }
             target.endTag(VStyleCalendar.TAG_WEEK);
         }
@@ -247,26 +266,28 @@ public class StyleCalendar extends AbstractField {
         super.changeVariables(source, variables);
 
         // user clicked on a day
-        if (variables.containsKey("clickedDay")) {
-            Integer clickedDay = (Integer) variables.get("clickedDay");
+        if (variables.containsKey(VStyleCalendar.VAR_CLICKED_DAY)) {
+            Integer clickedDay = (Integer) variables
+                    .get(VStyleCalendar.VAR_CLICKED_DAY);
+            Integer clickedDayIndex = (Integer) variables
+                    .get(VStyleCalendar.VAR_DAYINDEX);
 
-            if (!isDisabled(clickedDay)) {
-                Date selectedDate = constructNewDateValue((Integer) variables
-                        .get("clickedDay"));
+            if (!isDisabled(clickedDayIndex)) {
+                Date selectedDate = constructNewDateValue(clickedDay);
                 setValue(selectedDate);
             } else {
                 // Ch-ch-cheater. Do nothing.
             }
         }
 
-        if (variables.containsKey("prevClick")) {
+        if (variables.containsKey(VStyleCalendar.VAR_PREV_CLICK)) {
             if (isPrevMonthAllowed()) {
                 showPreviousMonth();
             } else {
                 // Ch-ch-cheater. Do nothing.
             }
 
-        } else if (variables.containsKey("nextClick")) {
+        } else if (variables.containsKey(VStyleCalendar.VAR_NEXT_CLICK)) {
             if (isNextMonthAllowed()) {
                 showNextMonth();
             } else {
@@ -533,10 +554,8 @@ public class StyleCalendar extends AbstractField {
      *            the day of month that was clicked
      * @return true if the day is disabled, false otherwise
      */
-    protected boolean isDisabled(int clickedDayNro) {
-        Calendar clickedDate = constructNewCalendarValue(clickedDayNro);
-        int dayOfYearClicked = clickedDate.get(Calendar.DAY_OF_YEAR);
-        return disabledRenderedDays.contains(dayOfYearClicked);
+    protected boolean isDisabled(int clickedDayIndex) {
+        return disabledRenderedDays.contains(clickedDayIndex);
     }
 
     /**
@@ -586,7 +605,8 @@ public class StyleCalendar extends AbstractField {
      * @return
      */
     protected boolean isDisabledDate(Date date) {
-        if (getDateOptionsGenerator().isDateDisabled(date, this)) {
+        if (getDateOptionsGenerator() != null
+                && getDateOptionsGenerator().isDateDisabled(date, this)) {
             return true;
 
         } else {
@@ -622,16 +642,15 @@ public class StyleCalendar extends AbstractField {
     }
 
     /**
-     * Interface for for setting options for dates with the StyleCalendar.
+     * Interface for for setting options for dates with the StyleCalendar. The
+     * methods are called once for every date rendered.
      * 
-     * @author Risto Yrjänä / IT Mill Ltd.
+     * @author Risto Yrjänä / Vaadin
      * 
      */
     public interface DateOptionsGenerator {
 
         /**
-         * This method is called on every date of the currently shown month.
-         * 
          * @param date
          *            currently rendered date
          * @param context
@@ -641,8 +660,15 @@ public class StyleCalendar extends AbstractField {
         public String getStyleName(Date date, StyleCalendar context);
 
         /**
-         * This method is called on every date of the currently shown month.
-         * 
+         * @param date
+         *            currently rendered date
+         * @param context
+         *            the calling StyleCalendar instance
+         * @return the tooltip for a given day, or null
+         */
+        public String getTooltip(Date date, StyleCalendar context);
+
+        /**
          * @param date
          *            currently rendered date
          * @param context
