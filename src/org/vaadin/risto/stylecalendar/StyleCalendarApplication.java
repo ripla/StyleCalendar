@@ -366,7 +366,7 @@ public class StyleCalendarApplication extends Application {
     private void setDateOptionsGenerator(final List<Date> greenList,
             final List<Date> redList, final StyleCalendar mainCalendar) {
         mainCalendar
-                .setDateOptionsGenerator(new StyleCalendar.DateOptionsGenerator() {
+                .setDateOptionsGenerator(new DateOptionsGenerator() {
 
                     @Override
                     public String getStyleName(Date date, StyleCalendar context) {

@@ -15,9 +15,9 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 
 /**
- * StyleCalendar is designed to be a simple, easily stylable calendar component.
+ * TODO
  * 
- * @author Risto Yrjänä / Vaadin Ltd.
+ * @author Risto Yrjänä / Vaadin
  */
 @ClientWidget(org.vaadin.risto.stylecalendar.widgetset.client.ui.VStyleCalendarField.class)
 public class StyleCalendarField extends AbstractField implements
