@@ -3,9 +3,11 @@ package org.vaadin.risto.stylecalendar;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.VStyleCalendar;
 
@@ -170,25 +172,21 @@ public class StyleCalendar extends AbstractField {
         target.addVariable(this, VStyleCalendar.ATTR_WEEK_DAY_NAMES,
                 weekDaysArray);
 
-        // so we get the right amount of weeks to render
-        calendar.setMinimalDaysInFirstWeek(1);
-
         // render weeks and days
-
-        int numberOfWeeks = calendar.getActualMaximum(Calendar.WEEK_OF_MONTH);
 
         int dayIndex = 0;
 
-        for (int week = 1; week < numberOfWeeks + 1; week++) {
-            calendar.setTime(showingDate);
-            calendar.set(Calendar.WEEK_OF_MONTH, week);
+        // compute week start days
+        Set<Date> firstDaysOfWeek = getFirsDaysOfWeeks();
+
+        for (Date weekStartDate : firstDaysOfWeek) {
+
+            // reset to the start of the week
+            calendar.setTime(weekStartDate);
             target.startTag(VStyleCalendar.TAG_WEEK);
 
             target.addAttribute(VStyleCalendar.ATTR_WEEK_NUMBER,
                     calendar.get(Calendar.WEEK_OF_YEAR));
-
-            // reset to the start of the week
-            calendar.set(Calendar.DAY_OF_WEEK, firstDayOfWeek);
 
             for (int day = 0; day < daysInWeek; day++) {
                 target.startTag(VStyleCalendar.TAG_DAY);
@@ -639,5 +637,24 @@ public class StyleCalendar extends AbstractField {
         calendar.set(Calendar.HOUR, 0);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.AM_PM, 0);
+    }
+
+    protected Set<Date> getFirsDaysOfWeeks() {
+        LinkedHashSet<Date> set = new LinkedHashSet<Date>();
+        Calendar calendar = getCalendarInstance();
+        calendar.setTime(getShowingDate());
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+
+        int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int firstDayOfWeek = calendar.getFirstDayOfWeek();
+        for (int i = 1; i <= daysInMonth; i++) {
+            Calendar weekStart = (Calendar) calendar.clone();
+
+            weekStart.set(Calendar.DAY_OF_WEEK, firstDayOfWeek);
+            set.add(weekStart.getTime());
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        return set;
     }
 }

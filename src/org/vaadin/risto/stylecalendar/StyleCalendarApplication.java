@@ -365,43 +365,41 @@ public class StyleCalendarApplication extends Application {
 
     private void setDateOptionsGenerator(final List<Date> greenList,
             final List<Date> redList, final StyleCalendar mainCalendar) {
-        mainCalendar
-                .setDateOptionsGenerator(new DateOptionsGenerator() {
+        mainCalendar.setDateOptionsGenerator(new DateOptionsGenerator() {
 
-                    @Override
-                    public String getStyleName(Date date, StyleCalendar context) {
+            @Override
+            public String getStyleName(Date date, StyleCalendar context) {
 
-                        for (Date redDate : redList) {
-                            if (dateEquals(date, redDate)) {
-                                return "red";
-                            }
-                        }
-
-                        for (Date greenDate : greenList) {
-                            if (dateEquals(greenDate, date)) {
-                                return "green";
-                            }
-                        }
-
-                        return null;
+                for (Date redDate : redList) {
+                    if (dateEquals(date, redDate)) {
+                        return "red";
                     }
+                }
 
-                    @Override
-                    public boolean isDateDisabled(Date date,
-                            StyleCalendar context) {
-                        return disabledList.contains(date);
+                for (Date greenDate : greenList) {
+                    if (dateEquals(greenDate, date)) {
+                        return "green";
                     }
+                }
 
-                    @Override
-                    public String getTooltip(Date date, StyleCalendar context) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(date);
-                        return String.format("Week %d, day %d",
-                                calendar.get(Calendar.WEEK_OF_YEAR),
-                                calendar.get(Calendar.DAY_OF_MONTH));
-                    }
+                return null;
+            }
 
-                });
+            @Override
+            public boolean isDateDisabled(Date date, StyleCalendar context) {
+                return disabledList.contains(date);
+            }
+
+            @Override
+            public String getTooltip(Date date, StyleCalendar context) {
+                Calendar calendar = Calendar.getInstance(context.getLocale());
+                calendar.setTime(date);
+                return String.format("Week %d, day %d",
+                        calendar.get(Calendar.WEEK_OF_YEAR),
+                        calendar.get(Calendar.DAY_OF_MONTH));
+            }
+
+        });
     }
 
     public boolean dateEquals(Date first, Date second) {
