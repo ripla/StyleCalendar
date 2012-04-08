@@ -2,10 +2,11 @@
 
 StyleCalendar is a calendar add-on for [Vaadin](http://vaadin.com). It goal is to offer a simple, extendable calendar component with an easily themeable client-side DOM structure. 
 Its features include:
- - setting stylenames for individual days
- - disabling date ranges and individual days
- - customizable header and week numbers
- - tooltip support
+
+* setting stylenames for individual days
+* disabling date ranges and individual days
+* customizable header and week numbers
+* tooltip support
 
 See the [Directory page](http://vaadin.com/addon/stylecalendar) for more info and demo links.
 
