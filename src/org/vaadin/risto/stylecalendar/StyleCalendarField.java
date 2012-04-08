@@ -15,7 +15,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 
 /**
- * TODO
+ * Date selector component that uses a {@link StyleCalendar} as a popup for date
+ * selection.
  * 
  * @author Risto Yrjänä / Vaadin
  */
@@ -29,6 +30,10 @@ public class StyleCalendarField extends AbstractField implements
     private boolean showPopup;
 
     private String nullRepresentation;
+
+    public StyleCalendarField(String caption) {
+        setCaption(caption);
+    }
 
     @Override
     public void paintContent(PaintTarget target) throws PaintException {
@@ -52,10 +57,7 @@ public class StyleCalendarField extends AbstractField implements
 
     }
 
-    /**
-     * @return
-     */
-    private String getPaintValue() {
+    protected String getPaintValue() {
         Object value = getValue();
 
         if (value == null) {
@@ -76,9 +78,13 @@ public class StyleCalendarField extends AbstractField implements
     /**
      * @return
      */
-    private StyleCalendar getNewStyleCalendar() {
+    protected StyleCalendar getNewStyleCalendar() {
         StyleCalendar calendar = new StyleCalendar();
         calendar.setValue(getValue());
+
+        if (getValue() != null) {
+            calendar.setShowingDate(getValue());
+        }
 
         calendar.addListener(new Property.ValueChangeListener() {
 
@@ -97,10 +103,7 @@ public class StyleCalendarField extends AbstractField implements
         return calendar;
     }
 
-    /**
-     * @param internalCalendar2
-     */
-    private void removeStyleCalendar(StyleCalendar calendar) {
+    protected void removeStyleCalendar(StyleCalendar calendar) {
         calendar.setParent(null);
         calendar.removeListener((ValueChangeListener) this);
     }
@@ -127,6 +130,7 @@ public class StyleCalendarField extends AbstractField implements
 
         if (internalCalendar != null) {
             internalCalendar.setValue(newValue);
+            internalCalendar.setShowingDate((Date) newValue);
         }
     }
 
@@ -143,21 +147,24 @@ public class StyleCalendarField extends AbstractField implements
         if (variables.containsKey("showPopup")
                 && (Boolean) variables.get("showPopup") && !isShowPopup()) {
             setShowPopup(true);
-            requestRepaint();
 
         } else if (variables.containsKey("showPopup")
                 && !((Boolean) variables.get("showPopup")) && isShowPopup()) {
             setShowPopup(false);
 
         } else if (variables.containsKey("value")) {
-            try {
-                DateFormat format = DateFormat.getDateInstance(
-                        DateFormat.SHORT, getLocale());
-                Date value = format.parse((String) variables.get("value"));
-                setValue(value);
-            } catch (ParseException e) {
+            handleValueFromClient((String) variables.get("value"));
+        }
+    }
 
-            }
+    protected void handleValueFromClient(String valueFromClient) {
+        try {
+            DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT,
+                    getLocale());
+            Date value = format.parse(valueFromClient);
+            setValue(value);
+        } catch (ParseException e) {
+
         }
     }
 
@@ -167,6 +174,7 @@ public class StyleCalendarField extends AbstractField implements
             removeStyleCalendar(internalCalendar);
             internalCalendar = null;
         }
+        requestRepaint();
     }
 
     protected boolean isShowPopup() {
@@ -325,5 +333,10 @@ public class StyleCalendarField extends AbstractField implements
 
     public String getNullRepresentation() {
         return nullRepresentation;
+    }
+
+    @Override
+    public Date getValue() {
+        return (Date) super.getValue();
     }
 }

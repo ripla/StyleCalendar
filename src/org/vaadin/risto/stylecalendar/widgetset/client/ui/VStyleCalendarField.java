@@ -13,7 +13,6 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Focusable;
-import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -21,20 +20,19 @@ import com.google.gwt.user.client.ui.Widget;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Container;
 import com.vaadin.terminal.gwt.client.Paintable;
+import com.vaadin.terminal.gwt.client.RenderInformation.Size;
 import com.vaadin.terminal.gwt.client.RenderSpace;
 import com.vaadin.terminal.gwt.client.UIDL;
 import com.vaadin.terminal.gwt.client.Util;
 import com.vaadin.terminal.gwt.client.VCaption;
 import com.vaadin.terminal.gwt.client.VCaptionWrapper;
 import com.vaadin.terminal.gwt.client.VTooltip;
-import com.vaadin.terminal.gwt.client.RenderInformation.Size;
 import com.vaadin.terminal.gwt.client.ui.VOverlay;
-import com.vaadin.terminal.gwt.client.ui.richtextarea.VRichTextArea;
 
 public class VStyleCalendarField extends TextBox implements Container,
         Iterable<Widget> {
 
-    public static final String CLASSNAME = "stylecalendarfield";
+    public static final String CLASSNAME = "v-stylecalendarfield";
 
     /** For server-client communication */
     private String uidlId;
@@ -62,10 +60,14 @@ public class VStyleCalendarField extends TextBox implements Container,
         });
 
         popup = new CustomPopup();
-        popup.setStylePrimaryName(CLASSNAME + "-popup");
+        popup.setStyleName(CLASSNAME + "-popup");
+        popup.addStyleName("v-popupview-popup"); // to get font-size etc. from
+                                                 // the
+                                                 // Vaadin theme
 
         // When we click to open the popup...
         addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 if (!hostPopupVisible) {
                     updateState(true);
@@ -75,6 +77,7 @@ public class VStyleCalendarField extends TextBox implements Container,
 
         // ..and when we close it
         popup.addCloseHandler(new CloseHandler<PopupPanel>() {
+            @Override
             public void onClose(CloseEvent<PopupPanel> event) {
                 updateState(false);
             }
@@ -82,7 +85,6 @@ public class VStyleCalendarField extends TextBox implements Container,
 
         popup.setAnimationEnabled(true);
         popup.addAutoHidePartner(getElement());
-
         sinkEvents(VTooltip.TOOLTIP_EVENTS);
     }
 
@@ -92,10 +94,11 @@ public class VStyleCalendarField extends TextBox implements Container,
      * @see com.vaadin.terminal.gwt.client.Paintable#updateFromUIDL(com.vaadin.terminal.gwt.client.UIDL,
      *      com.vaadin.terminal.gwt.client.ApplicationConnection)
      */
+    @Override
     public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
         // This call should be made first. Ensure correct implementation,
         // and don't let the containing layout manage caption.
-        if (client.updateComponent(this, uidl, false)) {
+        if (client.updateComponent(this, uidl, true)) {
             return;
         }
         // These are for future server connections
@@ -116,22 +119,6 @@ public class VStyleCalendarField extends TextBox implements Container,
             // showPopupOnTop(popup, hostReference);
             preparePopup(popup);
             popup.updateFromUIDL(popupUIDL, client);
-            if (uidl.hasAttribute("style")) {
-                final String[] styles = uidl.getStringAttribute("style").split(
-                        " ");
-                final StringBuffer styleBuf = new StringBuffer();
-                final String primaryName = popup.getStylePrimaryName();
-                styleBuf.append(primaryName);
-                for (int i = 0; i < styles.length; i++) {
-                    styleBuf.append(" ");
-                    styleBuf.append(primaryName);
-                    styleBuf.append("-");
-                    styleBuf.append(styles[i]);
-                }
-                popup.setStyleName(styleBuf.toString());
-            } else {
-                popup.setStyleName(popup.getStylePrimaryName());
-            }
             showPopup(popup);
 
             // The popup shouldn't be visible, try to hide it.
@@ -236,22 +223,7 @@ public class VStyleCalendarField extends TextBox implements Container,
             // Notify children with focus
             if ((popupComponentWidget instanceof Focusable)) {
                 ((Focusable) popupComponentWidget).setFocus(false);
-            } else {
 
-                checkForRTE(popupComponentWidget);
-            }
-        }
-
-        private void checkForRTE(Widget popupComponentWidget2) {
-            if (popupComponentWidget2 instanceof VRichTextArea) {
-                ((VRichTextArea) popupComponentWidget2)
-                        .synchronizeContentToServer();
-            } else if (popupComponentWidget2 instanceof HasWidgets) {
-                HasWidgets hw = (HasWidgets) popupComponentWidget2;
-                Iterator<Widget> iterator = hw.iterator();
-                while (iterator.hasNext()) {
-                    checkForRTE(iterator.next());
-                }
             }
         }
 
@@ -336,6 +308,7 @@ public class VStyleCalendarField extends TextBox implements Container,
 
     // Container methods
 
+    @Override
     public RenderSpace getAllocatedSpace(Widget child) {
         Size popupExtra = calculatePopupExtra();
 
@@ -360,6 +333,7 @@ public class VStyleCalendarField extends TextBox implements Container,
         return new Size(width, height);
     }
 
+    @Override
     public boolean hasChildComponent(Widget component) {
         if (popup.popupComponentWidget != null) {
             return popup.popupComponentWidget == component;
@@ -368,16 +342,19 @@ public class VStyleCalendarField extends TextBox implements Container,
         }
     }
 
+    @Override
     public void replaceChildComponent(Widget oldComponent, Widget newComponent) {
         popup.setWidget(newComponent);
         popup.popupComponentWidget = newComponent;
     }
 
+    @Override
     public boolean requestLayout(Set<Paintable> child) {
         popup.updateShadowSizeAndPosition();
         return true;
     }
 
+    @Override
     public void updateCaption(Paintable component, UIDL uidl) {
         if (VCaption.isNeeded(uidl)) {
             if (popup.captionWrapper != null) {
@@ -405,16 +382,19 @@ public class VStyleCalendarField extends TextBox implements Container,
         }
     }
 
+    @Override
     public Iterator<Widget> iterator() {
         return new Iterator<Widget>() {
 
             int pos = 0;
 
+            @Override
             public boolean hasNext() {
                 // There is a child widget only if next() has not been called.
                 return (pos == 0);
             }
 
+            @Override
             public Widget next() {
                 // Next can be called only once to return the popup.
                 if (pos != 0) {
@@ -424,6 +404,7 @@ public class VStyleCalendarField extends TextBox implements Container,
                 return popup;
             }
 
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException();
             }

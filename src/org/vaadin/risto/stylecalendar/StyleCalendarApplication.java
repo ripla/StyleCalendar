@@ -49,6 +49,10 @@ public class StyleCalendarApplication extends Application {
         final List<Date> redList = new ArrayList<Date>();
 
         final StyleCalendar mainCalendar = new StyleCalendar();
+        StyleCalendarField styleCalendarField = new StyleCalendarField(
+                "StyleCalendarField");
+        styleCalendarField.setNullRepresentation("");
+
         mainCalendar.addListener(new Property.ValueChangeListener() {
 
             private static final long serialVersionUID = -4914236743301835604L;
@@ -70,11 +74,15 @@ public class StyleCalendarApplication extends Application {
         Layout startEnd = createDateRangePanel(mainCalendar);
 
         Panel mainCalendarPanel = new Panel("Main calendar");
+        ((AbstractOrderedLayout) mainCalendarPanel.getContent())
+                .setSpacing(true);
         mainCalendarPanel.setWidth(CENTERWIDTH);
         mainCalendarPanel.addComponent(new Label(
                 "All the component options affect this calendar only."));
         mainCalendarPanel.addComponent(mainCalendar);
         mainCalendarPanel.addComponent(dateLabel);
+
+        mainCalendarPanel.addComponent(styleCalendarField);
 
         Panel optionsPanel = new Panel("Component options");
         ((AbstractOrderedLayout) optionsPanel.getContent()).setSpacing(true);

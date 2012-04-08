@@ -4,6 +4,7 @@
 	<!-- Inherit super widgetset -->
 	<inherits name="com.vaadin.terminal.gwt.DefaultWidgetSet" /> 
 	
-	<!--  Internal theme file -->
+	<!--  Internal theme files -->
 	<stylesheet src="stylecalendar.css" />
+	<stylesheet src="stylecalendarfield.css" />
 </module>
