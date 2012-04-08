@@ -30,6 +30,8 @@ public class StyleCalendarApplication extends Application {
     private static final String CENTERWIDTH = "700px";
     private static final long serialVersionUID = -2802197153513393573L;
     protected List<Date> disabledList = new ArrayList<Date>();
+    private StyleCalendar mainCalendar;
+    private StyleCalendarField styleCalendarField;
 
     @Override
     public void init() {
@@ -48,9 +50,8 @@ public class StyleCalendarApplication extends Application {
         final List<Date> greenList = new ArrayList<Date>();
         final List<Date> redList = new ArrayList<Date>();
 
-        final StyleCalendar mainCalendar = new StyleCalendar();
-        StyleCalendarField styleCalendarField = new StyleCalendarField(
-                "StyleCalendarField");
+        mainCalendar = new StyleCalendar();
+        styleCalendarField = new StyleCalendarField("StyleCalendarField");
         styleCalendarField.setNullRepresentation("");
 
         mainCalendar.addListener(new Property.ValueChangeListener() {
@@ -68,8 +69,7 @@ public class StyleCalendarApplication extends Application {
 
         setDateOptionsGenerator(greenList, redList, mainCalendar);
 
-        Layout options = createComponentOptionsPanel(greenList, redList,
-                mainCalendar);
+        Layout options = createComponentOptionsPanel(greenList, redList);
 
         Layout startEnd = createDateRangePanel(mainCalendar);
 
@@ -161,7 +161,7 @@ public class StyleCalendarApplication extends Application {
     }
 
     private Layout createComponentOptionsPanel(final List<Date> greenList,
-            final List<Date> redList, final StyleCalendar mainCalendar) {
+            final List<Date> redList) {
         Label caption = new Label("Other options");
         caption.setStyleName(Reindeer.LABEL_H2);
 
@@ -286,6 +286,9 @@ public class StyleCalendarApplication extends Application {
                 Item selected = locales.getItem(event.getProperty().getValue());
                 mainCalendar.setLocale((Locale) selected.getItemProperty(
                         "locale").getValue());
+                styleCalendarField.setLocale((Locale) selected.getItemProperty(
+                        "locale").getValue());
+
             }
         });
         locales.select("Finnish");

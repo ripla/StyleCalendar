@@ -123,39 +123,7 @@ public class StyleCalendar extends AbstractField {
 
         // render header
         if (isRenderHeader()) {
-            target.startTag(VStyleCalendar.TAG_HEADER);
-            target.addAttribute(VStyleCalendar.ATTR_HEADER_CURRENT_YEAR,
-                    calendar.get(Calendar.YEAR));
-            target.addAttribute(VStyleCalendar.ATTR_HEADER_CURRENT_MONTH,
-                    getMonthCaption(calendar.getTime(), 0, true));
-
-            // render controls
-            if (isRenderControls()) {
-                target.startTag(VStyleCalendar.TAG_CONTROLS);
-
-                target.addAttribute(VStyleCalendar.ATTR_CONTROLS_PREV_MONTH,
-                        getMonthCaption(calendar.getTime(), -1, false));
-
-                if (isDisabledMonth(calendar.getTime(), -1)) {
-                    target.addAttribute(
-                            VStyleCalendar.ATTR_CONTROLS_PREV_MONTH_DISABLED,
-                            true);
-                    prevMonthEnabled = false;
-                }
-
-                target.addAttribute(VStyleCalendar.ATTR_CONTROLS_NEXT_MONTH,
-                        getMonthCaption(calendar.getTime(), 1, false));
-
-                if (isDisabledMonth(calendar.getTime(), 1)) {
-                    target.addAttribute(
-                            VStyleCalendar.ATTR_CONTROLS_NEXT_MONTH_DISABLED,
-                            true);
-                    nextMonthEnabled = false;
-                }
-
-                target.endTag(VStyleCalendar.TAG_CONTROLS);
-            }
-            target.endTag(VStyleCalendar.TAG_HEADER);
+            renderHeader(target);
         }
 
         // render weekday names
@@ -257,6 +225,42 @@ public class StyleCalendar extends AbstractField {
             }
             target.endTag(VStyleCalendar.TAG_WEEK);
         }
+    }
+
+    protected void renderHeader(PaintTarget target) throws PaintException {
+        Calendar calendar = getCalendarInstance();
+        calendar.setTime(getShowingDate());
+        target.startTag(VStyleCalendar.TAG_HEADER);
+        target.addAttribute(VStyleCalendar.ATTR_HEADER_CURRENT_YEAR,
+                calendar.get(Calendar.YEAR));
+        target.addAttribute(VStyleCalendar.ATTR_HEADER_CURRENT_MONTH,
+                getMonthCaption(calendar.getTime(), 0, true));
+
+        // render controls
+        if (isRenderControls()) {
+            target.startTag(VStyleCalendar.TAG_CONTROLS);
+
+            target.addAttribute(VStyleCalendar.ATTR_CONTROLS_PREV_MONTH,
+                    getMonthCaption(calendar.getTime(), -1, false));
+
+            if (isDisabledMonth(calendar.getTime(), -1)) {
+                target.addAttribute(
+                        VStyleCalendar.ATTR_CONTROLS_PREV_MONTH_DISABLED, true);
+                prevMonthEnabled = false;
+            }
+
+            target.addAttribute(VStyleCalendar.ATTR_CONTROLS_NEXT_MONTH,
+                    getMonthCaption(calendar.getTime(), 1, false));
+
+            if (isDisabledMonth(calendar.getTime(), 1)) {
+                target.addAttribute(
+                        VStyleCalendar.ATTR_CONTROLS_NEXT_MONTH_DISABLED, true);
+                nextMonthEnabled = false;
+            }
+
+            target.endTag(VStyleCalendar.TAG_CONTROLS);
+        }
+        target.endTag(VStyleCalendar.TAG_HEADER);
     }
 
     @Override
@@ -642,8 +646,11 @@ public class StyleCalendar extends AbstractField {
     protected Set<Date> getFirsDaysOfWeeks() {
         LinkedHashSet<Date> set = new LinkedHashSet<Date>();
         Calendar calendar = getCalendarInstance();
+
         calendar.setTime(getShowingDate());
         calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.getTime();// force recalc to overcome some strange behavior of
+                           // the java calendar
 
         int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
         int firstDayOfWeek = calendar.getFirstDayOfWeek();
