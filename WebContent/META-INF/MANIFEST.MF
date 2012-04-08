@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Implementation-Title: StyleCalendar
-Implementation-Version: 0.6
+Implementation-Version: 1.0
 Vaadin-Package-Version: 1
+Class-Path: 
 Vaadin-Widgetsets: org.vaadin.risto.stylecalendar.widgetset.StyleCalen
  darWidgetset
-Class-Path: 
 

@@ -1,6 +1,6 @@
 # StyleCalendar
 
-StyleCalendar is a calendar add-on for [Vaadin](http://vaadin.com). It goal is to offer a simple, extendable calendar component with an easily themeable client-side DOM structure. 
+StyleCalendar is a calendar add-on for [Vaadin](http://vaadin.com). Its goal is to offer a simple, extendable calendar component with an easily themeable client-side DOM structure. 
 Its features include:
 
 * setting stylenames for individual days

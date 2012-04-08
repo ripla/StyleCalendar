@@ -649,7 +649,8 @@ public class StyleCalendar extends AbstractField {
 
         calendar.setTime(getShowingDate());
         calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.getTime();// force recalc to overcome some strange behavior of
+
+        calendar.getTime();// force recalc to overcome some strange behaviour of
                            // the java calendar
 
         int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
