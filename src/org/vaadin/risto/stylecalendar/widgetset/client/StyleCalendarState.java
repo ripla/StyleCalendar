@@ -67,6 +67,10 @@ public class StyleCalendarState extends AbstractFieldState {
         weeks.add(week);
     }
 
+    public void clearWeeks() {
+        weeks.clear();
+    }
+
     public List<String> getWeekDayNames() {
         return Collections.unmodifiableList(weekDayNames);
     }
@@ -77,6 +81,10 @@ public class StyleCalendarState extends AbstractFieldState {
 
     public void addWeekDayName(String weekDayName) {
         weekDayNames.add(weekDayName);
+    }
+
+    public void clearWeekDayNames() {
+        weekDayNames.clear();
     }
 
     public VStyleCalendarControl getPreviousMonthControl() {

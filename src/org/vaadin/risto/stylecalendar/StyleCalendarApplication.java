@@ -37,6 +37,7 @@ public class StyleCalendarApplication extends Root {
 
     @Override
     protected void init(WrappedRequest request) {
+        setCaption("StyleCalendar demo");
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSpacing(true);
         mainLayout.setMargin(true);

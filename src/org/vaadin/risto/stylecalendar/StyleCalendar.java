@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarServerRpc;
 import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarState;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarControl;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarDay;
@@ -59,6 +60,39 @@ public class StyleCalendar extends AbstractField<Date> {
         setRenderWeekNumbers(true);
 
         setShowingDate(new Date());
+
+        registerRpc(new StyleCalendarServerRpc() {
+
+            private static final long serialVersionUID = -3223360435699819161L;
+
+            @Override
+            public void previousMonthClicked() {
+                if (isPrevMonthAllowed()) {
+                    showPreviousMonth();
+                } else {
+                    // Ch-ch-cheater. Do nothing.
+                }
+            }
+
+            @Override
+            public void nextMonthClicked() {
+                if (isNextMonthAllowed()) {
+                    showNextMonth();
+                } else {
+                    // Ch-ch-cheater. Do nothing.
+                }
+            }
+
+            @Override
+            public void dayClicked(Integer clickedDay, Integer clickedDayIndex) {
+                if (!isDisabled(clickedDayIndex)) {
+                    Date selectedDate = constructNewDateValue(clickedDay);
+                    setValue(selectedDate);
+                } else {
+                    // Ch-ch-cheater. Do nothing.
+                }
+            }
+        });
     }
 
     /**
@@ -125,6 +159,7 @@ public class StyleCalendar extends AbstractField<Date> {
         Calendar calendarForWeekdays = (Calendar) calendar.clone();
         calendarForWeekdays.set(Calendar.DAY_OF_WEEK, firstDayOfWeek);
 
+        getState().clearWeekDayNames();
         for (int weekday = 0; weekday < daysInWeek; weekday++) {
             getState().addWeekDayName(
                     calendarForWeekdays.getDisplayName(Calendar.DAY_OF_WEEK,
@@ -139,6 +174,7 @@ public class StyleCalendar extends AbstractField<Date> {
         // compute week start days
         Set<Date> firstDaysOfWeek = getFirsDaysOfWeeks();
 
+        getState().clearWeeks();
         for (Date weekStartDate : firstDaysOfWeek) {
 
             // reset to the start of the week
@@ -226,7 +262,7 @@ public class StyleCalendar extends AbstractField<Date> {
             VStyleCalendarControl prevControl = new VStyleCalendarControl();
             prevControl.setText(getMonthCaption(calendar.getTime(), -1, false));
 
-            prevControl.setEnabled(isDisabledMonth(calendar.getTime(), -1));
+            prevControl.setEnabled(!isDisabledMonth(calendar.getTime(), -1));
             prevMonthEnabled = prevControl.isEnabled();
 
             VStyleCalendarControl nextControl = new VStyleCalendarControl();
@@ -239,44 +275,6 @@ public class StyleCalendar extends AbstractField<Date> {
             state.setPreviousMonthControl(prevControl);
         }
     }
-
-    // TODO
-    // @Override
-    // public void changeVariables(Object source, Map<String, Object> variables)
-    // {
-    // super.changeVariables(source, variables);
-    //
-    // // user clicked on a day
-    // if (variables.containsKey(VStyleCalendar.VAR_CLICKED_DAY)) {
-    // Integer clickedDay = (Integer) variables
-    // .get(VStyleCalendar.VAR_CLICKED_DAY);
-    // Integer clickedDayIndex = (Integer) variables
-    // .get(VStyleCalendar.VAR_DAYINDEX);
-    //
-    // if (!isDisabled(clickedDayIndex)) {
-    // Date selectedDate = constructNewDateValue(clickedDay);
-    // setValue(selectedDate);
-    // } else {
-    // // Ch-ch-cheater. Do nothing.
-    // }
-    // }
-    //
-    // if (variables.containsKey(VStyleCalendar.VAR_PREV_CLICK)) {
-    // if (isPrevMonthAllowed()) {
-    // showPreviousMonth();
-    // } else {
-    // // Ch-ch-cheater. Do nothing.
-    // }
-    //
-    // } else if (variables.containsKey(VStyleCalendar.VAR_NEXT_CLICK)) {
-    // if (isNextMonthAllowed()) {
-    // showNextMonth();
-    // } else {
-    // // Ch-ch-cheater. Do nothing.
-    // }
-    // }
-    //
-    // }
 
     /**
      * Set the style generator used. This is called on every day shown.

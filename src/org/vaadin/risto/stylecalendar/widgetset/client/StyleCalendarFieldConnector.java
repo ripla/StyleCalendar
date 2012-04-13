@@ -28,4 +28,5 @@ public class StyleCalendarFieldConnector extends
     public StyleCalendarFieldState getState() {
         return (StyleCalendarFieldState) super.getState();
     }
+
 }

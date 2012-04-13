@@ -3,6 +3,13 @@ package org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.DayClickEvent;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.DayClickHandler;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.MonthClickEvent;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.MonthClickHandler;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.NextMonthClickEvent;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.PrevMonthClickEvent;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -18,56 +25,6 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class VStyleCalendar extends SimplePanel {
-
-    public static final String TAG_HEADER = "header";
-
-    public static final String TAG_CONTROLS = "controls";
-
-    public static final String TAG_WEEK = "week";
-
-    public static final String TAG_DAY = "day";
-
-    public static final String ATTR_RENDER_WEEK_NUMBERS = "renderWeekNumbers";
-
-    public static final String ATTR_RENDER_HEADER = "renderHeader";
-
-    public static final String ATTR_RENDER_CONTROLS = "renderControls";
-
-    public static final String ATTR_DAY_CLICKABLE = "clickable";
-
-    public static final String ATTR_DAY_DISABLED = "disabled";
-
-    public static final String ATTR_DAY_NUMBER = "daynumber";
-
-    public static final String ATTR_DAY_STYLE = "style";
-
-    public static final String ATTR_DAY_INDEX = "dayIndex";
-
-    public static final String ATTR_DAY_TOOLTIP = "dayTooltip";
-
-    public static final String ATTR_CONTROLS_PREV_MONTH = "prevMonth";
-
-    public static final String ATTR_CONTROLS_PREV_MONTH_DISABLED = "prevMonthDisabled";
-
-    public static final String ATTR_CONTROLS_NEXT_MONTH = "nextMonth";
-
-    public static final String ATTR_CONTROLS_NEXT_MONTH_DISABLED = "nextMonthDisabled";
-
-    public static final String ATTR_WEEK_DAY_NAMES = "weekDayNames";
-
-    public static final String ATTR_WEEK_NUMBER = "number";
-
-    public static final String ATTR_HEADER_CURRENT_YEAR = "currentYear";
-
-    public static final String ATTR_HEADER_CURRENT_MONTH = "currentMonth";
-
-    public static final String VAR_PREV_CLICK = "prevClick";
-
-    public static final String VAR_CLICKED_DAY = "clickedDay";
-
-    public static final String VAR_DAYINDEX = "dayIndex";
-
-    public static final String VAR_NEXT_CLICK = "nextClick";
 
     /** Set the CSS class name to allow styling. */
     public static final String CLASSNAME = "v-stylecalendar";
@@ -149,9 +106,7 @@ public class VStyleCalendar extends SimplePanel {
      * @param dayIndex
      */
     public void dayClick(int day, int dayIndex) {
-        // TODO
-        // client.updateVariable(uidlId, VAR_CLICKED_DAY, day, false);
-        // client.updateVariable(uidlId, VAR_DAYINDEX, dayIndex, immediate);
+        fireEvent(new DayClickEvent(day, dayIndex));
     }
 
     /**
@@ -159,8 +114,7 @@ public class VStyleCalendar extends SimplePanel {
      * immediate.
      */
     public void prevClick() {
-        // TODO
-        // client.updateVariable(uidlId, VAR_PREV_CLICK, true, true);
+        fireEvent(new PrevMonthClickEvent());
     }
 
     /**
@@ -168,8 +122,7 @@ public class VStyleCalendar extends SimplePanel {
      * immediate.
      */
     public void nextClick() {
-        // TODO
-        // client.updateVariable(uidlId, VAR_NEXT_CLICK, true, true);
+        fireEvent(new NextMonthClickEvent());
     }
 
     /**
@@ -370,7 +323,8 @@ public class VStyleCalendar extends SimplePanel {
 
         if (day.isClickable() && !day.isDisabled()) {
             HandlerRegistration dayClickHandler = dayLabel
-                    .addClickHandler(new DayClickHandler(dayNumber, dayIndex));
+                    .addClickHandler(new InternalDayClickHandler(dayNumber,
+                            dayIndex));
             handlerRegistrations.add(dayClickHandler);
         } else if (day.isDisabled()) {
             dayStyle += " disabled";
@@ -394,12 +348,12 @@ public class VStyleCalendar extends SimplePanel {
         return string == null || string.isEmpty();
     }
 
-    private class DayClickHandler implements ClickHandler {
+    private class InternalDayClickHandler implements ClickHandler {
 
         private final int day;
         private final int dayIndex;
 
-        public DayClickHandler(int day, int dayIndex) {
+        public InternalDayClickHandler(int day, int dayIndex) {
             this.day = day;
             this.dayIndex = dayIndex;
         }
@@ -487,5 +441,15 @@ public class VStyleCalendar extends SimplePanel {
     public void setHeight(String height) {
         super.setHeight(height);
         getWidget().setHeight(height);
+    }
+
+    public HandlerRegistration addMonthClickHandler(
+            MonthClickHandler monthClickHandler) {
+        return addHandler(monthClickHandler, MonthClickEvent.getType());
+    }
+
+    public HandlerRegistration addDayClickHandler(
+            DayClickHandler dayClickHandler) {
+        return addHandler(dayClickHandler, DayClickEvent.getType());
     }
 }
