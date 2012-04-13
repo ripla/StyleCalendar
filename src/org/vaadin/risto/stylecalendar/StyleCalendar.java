@@ -6,15 +6,14 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.VStyleCalendar;
+import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarState;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarControl;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarDay;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarWeek;
 
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
 import com.vaadin.ui.AbstractField;
-import com.vaadin.ui.ClientWidget;
 
 /**
  * 
@@ -25,8 +24,7 @@ import com.vaadin.ui.ClientWidget;
  * @author Risto Yrjänä / Vaadin
  * 
  */
-@ClientWidget(VStyleCalendar.class)
-public class StyleCalendar extends AbstractField {
+public class StyleCalendar extends AbstractField<Date> {
 
     private static final long serialVersionUID = 7797206568110243067L;
 
@@ -81,22 +79,21 @@ public class StyleCalendar extends AbstractField {
      * @see com.vaadin.ui.AbstractField#getType()
      */
     @Override
-    public Class<?> getType() {
+    public Class<Date> getType() {
         return Date.class;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.vaadin.ui.AbstractField#paintContent(com.vaadin.terminal.PaintTarget)
-     */
     @Override
-    public void paintContent(PaintTarget target) throws PaintException {
-        super.paintContent(target);
+    public StyleCalendarState getState() {
+        return (StyleCalendarState) super.getState();
+    }
+
+    @Override
+    public void updateState() {
+        super.updateState();
 
         // init calendar and date related variables
-        Date selectedDate = (Date) getValue();
+        Date selectedDate = getValue();
         Date today = new Date();
         Date showingDate = getShowingDate();
         Locale locale = getLocale();
@@ -115,30 +112,25 @@ public class StyleCalendar extends AbstractField {
         int firstDayOfWeek = calendar.getFirstDayOfWeek();
 
         // set main tag attributes
-        target.addAttribute(VStyleCalendar.ATTR_RENDER_WEEK_NUMBERS,
-                isRenderWeekNumbers());
-        target.addAttribute(VStyleCalendar.ATTR_RENDER_HEADER, isRenderHeader());
-        target.addAttribute(VStyleCalendar.ATTR_RENDER_CONTROLS,
-                isRenderControls());
+        getState().setRenderWeekNumbers(isRenderWeekNumbers());
+        getState().setRenderHeader(isRenderHeader());
+        getState().setRenderControls(isRenderControls());
 
         // render header
         if (isRenderHeader()) {
-            renderHeader(target);
+            renderHeader(getState());
         }
 
         // render weekday names
         Calendar calendarForWeekdays = (Calendar) calendar.clone();
         calendarForWeekdays.set(Calendar.DAY_OF_WEEK, firstDayOfWeek);
 
-        String[] weekDaysArray = new String[daysInWeek];
         for (int weekday = 0; weekday < daysInWeek; weekday++) {
-            weekDaysArray[weekday] = calendarForWeekdays.getDisplayName(
-                    Calendar.DAY_OF_WEEK, Calendar.SHORT, locale);
+            getState().addWeekDayName(
+                    calendarForWeekdays.getDisplayName(Calendar.DAY_OF_WEEK,
+                            Calendar.SHORT, locale));
             calendarForWeekdays.add(Calendar.DAY_OF_WEEK, 1);
         }
-
-        target.addVariable(this, VStyleCalendar.ATTR_WEEK_DAY_NAMES,
-                weekDaysArray);
 
         // render weeks and days
 
@@ -151,16 +143,15 @@ public class StyleCalendar extends AbstractField {
 
             // reset to the start of the week
             calendar.setTime(weekStartDate);
-            target.startTag(VStyleCalendar.TAG_WEEK);
 
-            target.addAttribute(VStyleCalendar.ATTR_WEEK_NUMBER,
-                    calendar.get(Calendar.WEEK_OF_YEAR));
+            VStyleCalendarWeek week = new VStyleCalendarWeek();
+            week.setWeekNumber(Integer.toString(calendar
+                    .get(Calendar.WEEK_OF_YEAR)));
 
-            for (int day = 0; day < daysInWeek; day++) {
-                target.startTag(VStyleCalendar.TAG_DAY);
-                target.addAttribute(VStyleCalendar.ATTR_DAY_NUMBER,
-                        calendar.get(Calendar.DAY_OF_MONTH));
-                target.addAttribute(VStyleCalendar.ATTR_DAY_INDEX, dayIndex);
+            for (int dayNumber = 0; dayNumber < daysInWeek; dayNumber++) {
+                VStyleCalendarDay day = new VStyleCalendarDay();
+                day.setNumber(calendar.get(Calendar.DAY_OF_MONTH));
+                day.setIndex(dayIndex);
 
                 // compute styles for given day
                 StringBuilder dayStyle = new StringBuilder();
@@ -177,12 +168,11 @@ public class StyleCalendar extends AbstractField {
                 if (monthEquals(calendar.getTime(), showingDate)) {
                     dayStyle.append(" ");
                     dayStyle.append("currentmonth");
-                    target.addAttribute(VStyleCalendar.ATTR_DAY_CLICKABLE, true);
+                    day.setClickable(true);
                 } else {
                     dayStyle.append(" ");
                     dayStyle.append("othermonth");
-                    target.addAttribute(VStyleCalendar.ATTR_DAY_CLICKABLE,
-                            false);
+                    day.setClickable(false);
                 }
 
                 if (isWeekend(calendar.getTime())) {
@@ -201,103 +191,92 @@ public class StyleCalendar extends AbstractField {
                     String tooltip = getDateOptionsGenerator().getTooltip(
                             calendar.getTime(), this);
                     if (tooltip != null) {
-                        target.addAttribute(VStyleCalendar.ATTR_DAY_TOOLTIP,
-                                tooltip);
+                        day.setTooltip(tooltip);
                     }
                 }
 
                 if (isDisabledDate(calendar.getTime())) {
-                    target.addAttribute(VStyleCalendar.ATTR_DAY_DISABLED, true);
+                    day.setDisabled(true);
                     disabledRenderedDays.add(dayIndex);
                 }
 
                 String dayStyleString = dayStyle.toString();
                 if (!dayStyleString.isEmpty()) {
-                    target.addAttribute(VStyleCalendar.ATTR_DAY_STYLE,
-                            dayStyleString);
+                    day.setStyle(dayStyleString);
                 }
 
-                target.endTag(VStyleCalendar.TAG_DAY);
+                week.addDay(day);
 
                 // move to the next day
                 calendar.add(Calendar.DAY_OF_WEEK, 1);
                 ++dayIndex;
             }
-            target.endTag(VStyleCalendar.TAG_WEEK);
+            getState().addWeek(week);
         }
     }
 
-    protected void renderHeader(PaintTarget target) throws PaintException {
+    protected void renderHeader(StyleCalendarState state) {
         Calendar calendar = getCalendarInstance();
         calendar.setTime(getShowingDate());
-        target.startTag(VStyleCalendar.TAG_HEADER);
-        target.addAttribute(VStyleCalendar.ATTR_HEADER_CURRENT_YEAR,
-                calendar.get(Calendar.YEAR));
-        target.addAttribute(VStyleCalendar.ATTR_HEADER_CURRENT_MONTH,
-                getMonthCaption(calendar.getTime(), 0, true));
+        state.setCurrentYear(Integer.toString(calendar.get(Calendar.YEAR)));
+        state.setCurrentMonth(getMonthCaption(calendar.getTime(), 0, true));
 
         // render controls
         if (isRenderControls()) {
-            target.startTag(VStyleCalendar.TAG_CONTROLS);
+            VStyleCalendarControl prevControl = new VStyleCalendarControl();
+            prevControl.setText(getMonthCaption(calendar.getTime(), -1, false));
 
-            target.addAttribute(VStyleCalendar.ATTR_CONTROLS_PREV_MONTH,
-                    getMonthCaption(calendar.getTime(), -1, false));
+            prevControl.setEnabled(isDisabledMonth(calendar.getTime(), -1));
+            prevMonthEnabled = prevControl.isEnabled();
 
-            if (isDisabledMonth(calendar.getTime(), -1)) {
-                target.addAttribute(
-                        VStyleCalendar.ATTR_CONTROLS_PREV_MONTH_DISABLED, true);
-                prevMonthEnabled = false;
-            }
+            VStyleCalendarControl nextControl = new VStyleCalendarControl();
+            nextControl.setText(getMonthCaption(calendar.getTime(), 1, false));
 
-            target.addAttribute(VStyleCalendar.ATTR_CONTROLS_NEXT_MONTH,
-                    getMonthCaption(calendar.getTime(), 1, false));
+            nextControl.setEnabled(!isDisabledMonth(calendar.getTime(), 1));
+            nextMonthEnabled = nextControl.isEnabled();
 
-            if (isDisabledMonth(calendar.getTime(), 1)) {
-                target.addAttribute(
-                        VStyleCalendar.ATTR_CONTROLS_NEXT_MONTH_DISABLED, true);
-                nextMonthEnabled = false;
-            }
-
-            target.endTag(VStyleCalendar.TAG_CONTROLS);
+            state.setNextMonthControl(nextControl);
+            state.setPreviousMonthControl(prevControl);
         }
-        target.endTag(VStyleCalendar.TAG_HEADER);
     }
 
-    @Override
-    public void changeVariables(Object source, Map<String, Object> variables) {
-        super.changeVariables(source, variables);
-
-        // user clicked on a day
-        if (variables.containsKey(VStyleCalendar.VAR_CLICKED_DAY)) {
-            Integer clickedDay = (Integer) variables
-                    .get(VStyleCalendar.VAR_CLICKED_DAY);
-            Integer clickedDayIndex = (Integer) variables
-                    .get(VStyleCalendar.VAR_DAYINDEX);
-
-            if (!isDisabled(clickedDayIndex)) {
-                Date selectedDate = constructNewDateValue(clickedDay);
-                setValue(selectedDate);
-            } else {
-                // Ch-ch-cheater. Do nothing.
-            }
-        }
-
-        if (variables.containsKey(VStyleCalendar.VAR_PREV_CLICK)) {
-            if (isPrevMonthAllowed()) {
-                showPreviousMonth();
-            } else {
-                // Ch-ch-cheater. Do nothing.
-            }
-
-        } else if (variables.containsKey(VStyleCalendar.VAR_NEXT_CLICK)) {
-            if (isNextMonthAllowed()) {
-                showNextMonth();
-            } else {
-                // Ch-ch-cheater. Do nothing.
-            }
-        }
-
-    }
+    // TODO
+    // @Override
+    // public void changeVariables(Object source, Map<String, Object> variables)
+    // {
+    // super.changeVariables(source, variables);
+    //
+    // // user clicked on a day
+    // if (variables.containsKey(VStyleCalendar.VAR_CLICKED_DAY)) {
+    // Integer clickedDay = (Integer) variables
+    // .get(VStyleCalendar.VAR_CLICKED_DAY);
+    // Integer clickedDayIndex = (Integer) variables
+    // .get(VStyleCalendar.VAR_DAYINDEX);
+    //
+    // if (!isDisabled(clickedDayIndex)) {
+    // Date selectedDate = constructNewDateValue(clickedDay);
+    // setValue(selectedDate);
+    // } else {
+    // // Ch-ch-cheater. Do nothing.
+    // }
+    // }
+    //
+    // if (variables.containsKey(VStyleCalendar.VAR_PREV_CLICK)) {
+    // if (isPrevMonthAllowed()) {
+    // showPreviousMonth();
+    // } else {
+    // // Ch-ch-cheater. Do nothing.
+    // }
+    //
+    // } else if (variables.containsKey(VStyleCalendar.VAR_NEXT_CLICK)) {
+    // if (isNextMonthAllowed()) {
+    // showNextMonth();
+    // } else {
+    // // Ch-ch-cheater. Do nothing.
+    // }
+    // }
+    //
+    // }
 
     /**
      * Set the style generator used. This is called on every day shown.

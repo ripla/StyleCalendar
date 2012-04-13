@@ -1,4 +1,4 @@
-package org.vaadin.risto.stylecalendar.widgetset.client.ui;
+package org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +16,8 @@ import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.vaadin.terminal.gwt.client.ApplicationConnection;
-import com.vaadin.terminal.gwt.client.Paintable;
-import com.vaadin.terminal.gwt.client.TooltipInfo;
-import com.vaadin.terminal.gwt.client.UIDL;
 
-public class VStyleCalendar extends SimplePanel implements Paintable {
+public class VStyleCalendar extends SimplePanel {
 
     public static final String TAG_HEADER = "header";
 
@@ -79,24 +75,28 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
     private static final String PREVMONTHCONTROL = "<<";
     private static final String NEXTMONTHCONTROL = ">>";
 
-    /** Component identifier in UIDL communications. */
-    protected String uidlId;
+    private boolean renderWeekNumbers;
 
-    /** Reference to the server connection object. */
-    protected ApplicationConnection client;
+    private boolean renderControls;
 
-    protected boolean renderWeekNumbers;
-
-    protected boolean renderControls;
-
-    protected boolean renderHeader;
+    private boolean renderHeader;
 
     /**
-     * List of click handlers. Handlers are removed on each repaint.
+     * List of click handlers. Handlers are removed on each redraw.
      */
     protected final List<HandlerRegistration> handlerRegistrations;
 
-    protected boolean immediate;
+    private String currentYear;
+
+    private String currentMonth;
+
+    private VStyleCalendarControl previousMonthControl;
+
+    private VStyleCalendarControl nextMonthControl;
+
+    private List<String> weekDayNames;
+
+    private List<VStyleCalendarWeek> weeks;
 
     /**
      * The constructor should first call super() to initialize the component and
@@ -110,29 +110,7 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         handlerRegistrations = new ArrayList<HandlerRegistration>();
     }
 
-    @Override
-    public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
-        // This call should be made first. Ensure correct implementation,
-        // and let the containing layout manage caption, etc.
-        if (client.updateComponent(this, uidl, true)) {
-            return;
-        }
-
-        // Save reference to server connection object to be able to send
-        // user interaction later
-        this.client = client;
-
-        // Save the UIDL identifier for the component
-        uidlId = uidl.getId();
-
-        // Get immediate status
-        immediate = uidl.getBooleanAttribute("immediate");
-
-        // set global rendering attributes from base tag
-        renderWeekNumbers = uidl.getBooleanAttribute(ATTR_RENDER_WEEK_NUMBERS);
-        renderHeader = uidl.getBooleanAttribute(ATTR_RENDER_HEADER);
-        renderControls = uidl.getBooleanAttribute(ATTR_RENDER_CONTROLS);
-
+    public void redraw() {
         if (!handlerRegistrations.isEmpty()) {
             for (HandlerRegistration hr : handlerRegistrations) {
                 hr.removeHandler();
@@ -146,32 +124,21 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
 
         setWidget(calendarBody);
 
-        int numberOfRows = uidl.getChildCount();
-        int currentRow = 0;
-        int firstWeekChild = (renderHeader ? 1 : 0);
-
+        int weekdaysRow = renderHeader ? 1 : 0;
         if (renderHeader) {
-            UIDL headerUIDL = uidl.getChildUIDL(currentRow);
-            renderHeader(headerUIDL, calendarBody, currentRow);
-            currentRow++;
+            renderHeader(calendarBody);
         }
 
-        String[] weekDayNames = uidl
-                .getStringArrayVariable(ATTR_WEEK_DAY_NAMES);
-
-        renderWeekDays(weekDayNames, calendarBody, currentRow);
-        currentRow++;
-
-        for (int i = firstWeekChild; i < numberOfRows; i++) {
-            UIDL childUIDL = uidl.getChildUIDL(i);
-
-            renderWeek(childUIDL, calendarBody, currentRow++);
+        renderWeekDays(weekDayNames, calendarBody, weekdaysRow);
+        int weekRow = weekdaysRow + 1;
+        for (VStyleCalendarWeek week : getWeeks()) {
+            renderWeek(week, calendarBody, weekRow++);
         }
 
         if (renderHeader) {
-            int numCols = calendarBody.getCellCount(currentRow - 1);
-            calendarBody.getFlexCellFormatter().setColSpan(0, 0, numCols);
-
+            int numberOfColumns = renderWeekNumbers ? 8 : 7;
+            calendarBody.getFlexCellFormatter().setColSpan(0, 0,
+                    numberOfColumns);
         }
     }
 
@@ -182,8 +149,9 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
      * @param dayIndex
      */
     public void dayClick(int day, int dayIndex) {
-        client.updateVariable(uidlId, VAR_CLICKED_DAY, day, false);
-        client.updateVariable(uidlId, VAR_DAYINDEX, dayIndex, immediate);
+        // TODO
+        // client.updateVariable(uidlId, VAR_CLICKED_DAY, day, false);
+        // client.updateVariable(uidlId, VAR_DAYINDEX, dayIndex, immediate);
     }
 
     /**
@@ -191,7 +159,8 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
      * immediate.
      */
     public void prevClick() {
-        client.updateVariable(uidlId, VAR_PREV_CLICK, true, true);
+        // TODO
+        // client.updateVariable(uidlId, VAR_PREV_CLICK, true, true);
     }
 
     /**
@@ -199,13 +168,14 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
      * immediate.
      */
     public void nextClick() {
-        client.updateVariable(uidlId, VAR_NEXT_CLICK, true, true);
+        // TODO
+        // client.updateVariable(uidlId, VAR_NEXT_CLICK, true, true);
     }
 
     /**
      * @param weekDayNames
      */
-    private void renderWeekDays(String[] weekDayNames, FlexTable cb,
+    private void renderWeekDays(List<String> weekDayNames, FlexTable cb,
             int weekDayRow) {
         cb.getRowFormatter().setStylePrimaryName(weekDayRow, "weekdays");
 
@@ -232,17 +202,14 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
      * @param headerRow
      * @param cb
      */
-    private void renderHeader(UIDL childUIDL, FlexTable cb, int headerRow) {
+    private void renderHeader(FlexTable cb) {
 
         HorizontalPanel headerPanel = new HorizontalPanel();
 
-        cb.getRowFormatter().setStyleName(headerRow, "header");
-        String currentMonth = childUIDL
-                .getStringAttribute(ATTR_HEADER_CURRENT_MONTH);
-        int currentYear = childUIDL.getIntAttribute(ATTR_HEADER_CURRENT_YEAR);
+        cb.getRowFormatter().setStyleName(0, "header");
 
         if (renderControls) {
-            Widget leftControl = renderPrevControl(childUIDL.getChildUIDL(0));
+            Widget leftControl = renderPrevControl();
             headerPanel
                     .setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
             headerPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
@@ -253,11 +220,11 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         Label month = null;
         Label year = null;
         if (renderControls) {
-            month = new Label(currentMonth);
-            year = new Label(Integer.toString(currentYear));
+            month = new Label(getCurrentMonth());
+            year = new Label(getCurrentYear());
         } else {
-            month = new InlineLabel(currentMonth);
-            year = new InlineLabel(Integer.toString(currentYear));
+            month = new InlineLabel(getCurrentMonth());
+            year = new InlineLabel(getCurrentYear());
         }
         month.setStylePrimaryName("currentmonth");
         year.setStylePrimaryName("year");
@@ -272,24 +239,17 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         headerPanel.add(middle);
 
         if (renderControls) {
-            Widget rightControl = renderNextControl(childUIDL.getChildUIDL(0));
+            Widget rightControl = renderNextControl();
             headerPanel
                     .setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
             headerPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
             headerPanel.add(rightControl);
         }
 
-        cb.setWidget(headerRow, 0, headerPanel);
+        cb.setWidget(0, 0, headerPanel);
     }
 
-    private Widget renderPrevControl(UIDL childUIDL) {
-
-        String controlText = childUIDL
-                .getStringAttribute(ATTR_CONTROLS_PREV_MONTH);
-        boolean controlEnabled = !childUIDL
-                .hasAttribute(ATTR_CONTROLS_PREV_MONTH_DISABLED)
-                && !childUIDL
-                        .getBooleanAttribute(ATTR_CONTROLS_PREV_MONTH_DISABLED);
+    private Widget renderPrevControl() {
 
         FlowPanel controlPanel = new FlowPanel();
         controlPanel.setStylePrimaryName("prevcontrol");
@@ -297,13 +257,14 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         InlineLabel controlSymbol = new InlineLabel(PREVMONTHCONTROL);
         controlSymbol.setStylePrimaryName("control");
 
-        InlineLabel controlCaption = new InlineLabel(controlText);
+        InlineLabel controlCaption = new InlineLabel(
+                previousMonthControl.getText());
         controlCaption.setStylePrimaryName("month");
 
         controlPanel.add(controlSymbol);
         controlPanel.add(controlCaption);
 
-        if (controlEnabled) {
+        if (previousMonthControl.isEnabled()) {
             ClickHandler prevClick = new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -326,27 +287,21 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         return controlPanel;
     }
 
-    private Widget renderNextControl(UIDL childUIDL) {
-        String controlText = childUIDL
-                .getStringAttribute(ATTR_CONTROLS_NEXT_MONTH);
-        boolean controlEnabled = !childUIDL
-                .hasAttribute(ATTR_CONTROLS_NEXT_MONTH_DISABLED)
-                && !childUIDL
-                        .getBooleanAttribute(ATTR_CONTROLS_NEXT_MONTH_DISABLED);
-
+    private Widget renderNextControl() {
         FlowPanel controlPanel = new FlowPanel();
         controlPanel.setStylePrimaryName("nextcontrol");
 
         InlineLabel controlSymbol = new InlineLabel(NEXTMONTHCONTROL);
         controlSymbol.setStylePrimaryName("control");
 
-        InlineLabel controlCaption = new InlineLabel(controlText);
+        InlineLabel controlCaption = new InlineLabel(getNextMonthControl()
+                .getText());
         controlCaption.setStylePrimaryName("month");
 
         controlPanel.add(controlCaption);
         controlPanel.add(controlSymbol);
 
-        if (controlEnabled) {
+        if (getNextMonthControl().isEnabled()) {
             ClickHandler nextClick = new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -369,15 +324,14 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         return controlPanel;
     }
 
-    private void renderWeek(UIDL childUIDL, FlexTable cb, int weekRow) {
+    private void renderWeek(VStyleCalendarWeek week, FlexTable cb, int weekRow) {
 
         cb.getRowFormatter().setStylePrimaryName(weekRow, "week");
 
         if (renderWeekNumbers) {
-            int wn = childUIDL.getIntAttribute(ATTR_WEEK_NUMBER);
             cb.addCell(weekRow);
 
-            Label weekNumber = new Label(Integer.toString(wn));
+            Label weekNumber = new Label(week.getWeekNumber());
             cb.setWidget(weekRow, cb.getCellCount(weekRow) - 1, weekNumber);
 
             cb.getCellFormatter().setStyleName(weekRow, 0, "weeknumber");
@@ -386,27 +340,26 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
 
         int columnAddition = (renderWeekNumbers ? 1 : 0);
 
-        for (int i = 0; i < childUIDL.getChildCount(); i++) {
+        for (int i = 0; i < week.getDays().size(); i++) {
             cb.addCell(weekRow);
-            renderDay(childUIDL.getChildUIDL(i), cb, weekRow, i
-                    + columnAddition);
+            renderDay(week.getDays().get(i), cb, weekRow, i + columnAddition);
         }
 
     }
 
-    private void renderDay(UIDL childUIDL, FlexTable cb, int dayRow,
+    private void renderDay(VStyleCalendarDay day, FlexTable cb, int dayRow,
             int dayColumn) {
 
-        int dayNumber = childUIDL.getIntAttribute(ATTR_DAY_NUMBER);
+        Integer dayNumber = day.getNumber();
 
-        Integer dayIndex = childUIDL.getIntAttribute(ATTR_DAY_INDEX);
+        Integer dayIndex = day.getIndex();
 
         String dayStyle = null;
-        if (childUIDL.hasAttribute("style")) {
+        if (!isNullOrEmpty(day.getStyle())) {
             StringBuilder styleBuilder = new StringBuilder();
             styleBuilder.append("day");
             styleBuilder.append(" ");
-            styleBuilder.append(childUIDL.getStringAttribute("style"));
+            styleBuilder.append(day.getStyle());
             dayStyle = styleBuilder.toString();
         } else {
             dayStyle = "day";
@@ -415,19 +368,18 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         Label dayLabel = new DayLabel(dayIndex, this);
         dayLabel.setText(Integer.toString(dayNumber));
 
-        if (childUIDL.getBooleanAttribute(ATTR_DAY_CLICKABLE)
-                && !childUIDL.getBooleanAttribute(ATTR_DAY_DISABLED)) {
+        if (day.isClickable() && !day.isDisabled()) {
             HandlerRegistration dayClickHandler = dayLabel
                     .addClickHandler(new DayClickHandler(dayNumber, dayIndex));
             handlerRegistrations.add(dayClickHandler);
-        } else if (childUIDL.getBooleanAttribute(ATTR_DAY_DISABLED)) {
+        } else if (day.isDisabled()) {
             dayStyle += " disabled";
         }
 
-        if (childUIDL.hasAttribute(ATTR_DAY_TOOLTIP)) {
-            String tooltip = childUIDL.getStringAttribute(ATTR_DAY_TOOLTIP);
-            TooltipInfo dayTooltip = new TooltipInfo(tooltip);
-            client.registerTooltip(this, dayIndex, dayTooltip);
+        if (!isNullOrEmpty(day.getTooltip())) {
+            // TODO
+            // TooltipInfo dayTooltip = new TooltipInfo(day.getTooltip());
+            // client.registerTooltip(this, dayIndex, dayTooltip);
         }
 
         cb.setWidget(dayRow, dayColumn, dayLabel);
@@ -436,6 +388,10 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
         cb.getCellFormatter().setAlignment(dayRow, dayColumn,
                 HasHorizontalAlignment.ALIGN_CENTER,
                 HasVerticalAlignment.ALIGN_MIDDLE);
+    }
+
+    private boolean isNullOrEmpty(String string) {
+        return string == null || string.isEmpty();
     }
 
     private class DayClickHandler implements ClickHandler {
@@ -456,6 +412,80 @@ public class VStyleCalendar extends SimplePanel implements Paintable {
     }
 
     public void handleTooltipEvent(Event event, DayLabel dayLabel) {
-        client.handleTooltipEvent(event, this, dayLabel.getIndex());
+        // TODO
+        // client.handleTooltipEvent(event, this, dayLabel.getIndex());
+    }
+
+    public void setRenderWeekNumbers(boolean renderWeekNumbers) {
+        this.renderWeekNumbers = renderWeekNumbers;
+    }
+
+    public void setRenderHeader(boolean renderHeader) {
+        this.renderHeader = renderHeader;
+    }
+
+    public void setRenderControls(boolean renderControls) {
+        this.renderControls = renderControls;
+    }
+
+    public void setCurrentYear(String currentYear) {
+        this.currentYear = currentYear;
+    }
+
+    public String getCurrentYear() {
+        return currentYear;
+    }
+
+    public void setCurrentMonth(String currentMonth) {
+        this.currentMonth = currentMonth;
+    }
+
+    public String getCurrentMonth() {
+        return currentMonth;
+    }
+
+    public VStyleCalendarControl getPreviousMonthControl() {
+        return previousMonthControl;
+    }
+
+    public void setPreviousMonthControl(
+            VStyleCalendarControl previousMonthControl) {
+        this.previousMonthControl = previousMonthControl;
+    }
+
+    public void setNextMonthControl(VStyleCalendarControl nextMonthControl) {
+        this.nextMonthControl = nextMonthControl;
+    }
+
+    public VStyleCalendarControl getNextMonthControl() {
+        return nextMonthControl;
+    }
+
+    public void setWeekDayNames(List<String> weekDayNames) {
+        this.weekDayNames = weekDayNames;
+    }
+
+    public List<String> getWeekDayNames() {
+        return weekDayNames;
+    }
+
+    public void setWeeks(List<VStyleCalendarWeek> weeks) {
+        this.weeks = weeks;
+    }
+
+    public List<VStyleCalendarWeek> getWeeks() {
+        return weeks;
+    }
+
+    @Override
+    public void setWidth(String width) {
+        super.setWidth(width);
+        getWidget().setWidth(width);
+    }
+
+    @Override
+    public void setHeight(String height) {
+        super.setHeight(height);
+        getWidget().setHeight(height);
     }
 }

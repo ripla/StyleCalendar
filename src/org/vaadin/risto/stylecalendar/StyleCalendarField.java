@@ -4,15 +4,13 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Map;
+
+import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarFieldState;
 
 import com.vaadin.data.Property;
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
 import com.vaadin.ui.AbstractField;
-import com.vaadin.ui.ClientWidget;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.HasComponents;
 
 /**
  * Date selector component that uses a {@link StyleCalendar} as a popup for date
@@ -20,9 +18,8 @@ import com.vaadin.ui.ComponentContainer;
  * 
  * @author Risto Yrjänä / Vaadin
  */
-@ClientWidget(org.vaadin.risto.stylecalendar.widgetset.client.ui.VStyleCalendarField.class)
-public class StyleCalendarField extends AbstractField implements
-        ComponentContainer {
+public class StyleCalendarField extends AbstractField<Date> implements
+        HasComponents {
 
     private static final long serialVersionUID = 7509453410070681818L;
 
@@ -36,25 +33,24 @@ public class StyleCalendarField extends AbstractField implements
     }
 
     @Override
-    public void paintContent(PaintTarget target) throws PaintException {
-        super.paintContent(target);
+    public StyleCalendarFieldState getState() {
+        return (StyleCalendarFieldState) super.getState();
+    }
+
+    @Override
+    public void updateState() {
+        super.updateState();
 
         String paintValue = getPaintValue();
 
-        target.addAttribute("value", paintValue);
+        getState().setFieldValue(paintValue);
 
-        target.addVariable(this, "showPopup", isShowPopup());
-        if (isShowPopup()) {
-            target.startTag("calendar");
+        getState().setShowPopup(isShowPopup());
+    }
 
-            if (internalCalendar == null) {
-                internalCalendar = getNewStyleCalendar();
-            }
-
-            internalCalendar.paint(target);
-            target.endTag("calendar");
-        }
-
+    @Override
+    public boolean isComponentVisible(Component childComponent) {
+        return isShowPopup();
     }
 
     protected String getPaintValue() {
@@ -75,9 +71,6 @@ public class StyleCalendarField extends AbstractField implements
         }
     }
 
-    /**
-     * @return
-     */
     protected StyleCalendar getNewStyleCalendar() {
         StyleCalendar calendar = new StyleCalendar();
         calendar.setValue(getValue());
@@ -114,7 +107,7 @@ public class StyleCalendarField extends AbstractField implements
      * @see com.vaadin.ui.AbstractField#getType()
      */
     @Override
-    public Class<?> getType() {
+    public Class<Date> getType() {
         return Date.class;
     }
 
@@ -124,8 +117,7 @@ public class StyleCalendarField extends AbstractField implements
      * @see com.vaadin.ui.AbstractField#setValue(java.lang.Object)
      */
     @Override
-    public void setValue(Object newValue) throws ReadOnlyException,
-            ConversionException {
+    public void setValue(Object newValue) {
         super.setValue(newValue);
 
         if (internalCalendar != null) {
@@ -134,28 +126,24 @@ public class StyleCalendarField extends AbstractField implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.vaadin.ui.AbstractField#changeVariables(java.lang.Object,
-     * java.util.Map)
-     */
-    @Override
-    public void changeVariables(Object source, Map<String, Object> variables) {
-        super.changeVariables(source, variables);
-
-        if (variables.containsKey("showPopup")
-                && (Boolean) variables.get("showPopup") && !isShowPopup()) {
-            setShowPopup(true);
-
-        } else if (variables.containsKey("showPopup")
-                && !((Boolean) variables.get("showPopup")) && isShowPopup()) {
-            setShowPopup(false);
-
-        } else if (variables.containsKey("value")) {
-            handleValueFromClient((String) variables.get("value"));
-        }
-    }
+    // TODO
+    // @Override
+    // public void changeVariables(Object source, Map<String, Object> variables)
+    // {
+    // super.changeVariables(source, variables);
+    //
+    // if (variables.containsKey("showPopup")
+    // && (Boolean) variables.get("showPopup") && !isShowPopup()) {
+    // setShowPopup(true);
+    //
+    // } else if (variables.containsKey("showPopup")
+    // && !((Boolean) variables.get("showPopup")) && isShowPopup()) {
+    // setShowPopup(false);
+    //
+    // } else if (variables.containsKey("value")) {
+    // handleValueFromClient((String) variables.get("value"));
+    // }
+    // }
 
     protected void handleValueFromClient(String valueFromClient) {
         try {
@@ -181,48 +169,8 @@ public class StyleCalendarField extends AbstractField implements
         return showPopup;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.vaadin.ui.ComponentContainer#addComponent(com.vaadin.ui.Component)
-     */
     @Override
-    public void addComponent(Component c) {
-        throw new UnsupportedOperationException();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.vaadin.ui.ComponentContainer#addListener(com.vaadin.ui.ComponentContainer
-     * .ComponentAttachListener)
-     */
-    @Override
-    public void addListener(ComponentAttachListener listener) {
-        throw new UnsupportedOperationException();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.vaadin.ui.ComponentContainer#addListener(com.vaadin.ui.ComponentContainer
-     * .ComponentDetachListener)
-     */
-    @Override
-    public void addListener(ComponentDetachListener listener) {
-        throw new UnsupportedOperationException();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.vaadin.ui.ComponentContainer#getComponentIterator()
-     */
-    @Override
-    public Iterator<Component> getComponentIterator() {
+    public Iterator<Component> iterator() {
         return new Iterator<Component>() {
 
             private boolean first = (internalCalendar == null);
@@ -249,84 +197,6 @@ public class StyleCalendarField extends AbstractField implements
         };
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.vaadin.ui.ComponentContainer#moveComponentsFrom(com.vaadin.ui.
-     * ComponentContainer)
-     */
-    @Override
-    public void moveComponentsFrom(ComponentContainer source) {
-        throw new UnsupportedOperationException();
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.vaadin.ui.ComponentContainer#removeAllComponents()
-     */
-    @Override
-    public void removeAllComponents() {
-        throw new UnsupportedOperationException();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.vaadin.ui.ComponentContainer#removeComponent(com.vaadin.ui.Component)
-     */
-    @Override
-    public void removeComponent(Component c) {
-        throw new UnsupportedOperationException();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.vaadin.ui.ComponentContainer#removeListener(com.vaadin.ui.
-     * ComponentContainer.ComponentAttachListener)
-     */
-    @Override
-    public void removeListener(ComponentAttachListener listener) {
-        throw new UnsupportedOperationException();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.vaadin.ui.ComponentContainer#removeListener(com.vaadin.ui.
-     * ComponentContainer.ComponentDetachListener)
-     */
-    @Override
-    public void removeListener(ComponentDetachListener listener) {
-        throw new UnsupportedOperationException();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.vaadin.ui.ComponentContainer#replaceComponent(com.vaadin.ui.Component
-     * , com.vaadin.ui.Component)
-     */
-    @Override
-    public void replaceComponent(Component oldComponent, Component newComponent) {
-        throw new UnsupportedOperationException();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.vaadin.ui.ComponentContainer#requestRepaintAll()
-     */
-    @Override
-    public void requestRepaintAll() {
-        requestRepaint();
-        internalCalendar.requestRepaint();
-    }
-
     public void setNullRepresentation(String nullRepresentation) {
         this.nullRepresentation = nullRepresentation;
     }
@@ -337,6 +207,18 @@ public class StyleCalendarField extends AbstractField implements
 
     @Override
     public Date getValue() {
-        return (Date) super.getValue();
+        return super.getValue();
+    }
+
+    @Override
+    public void requestRepaintAll() {
+        if (internalCalendar != null) {
+            internalCalendar.requestRepaint();
+        }
+    }
+
+    @Override
+    public Iterator<Component> getComponentIterator() {
+        return iterator();
     }
 }

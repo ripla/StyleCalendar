@@ -7,10 +7,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import com.vaadin.Application;
+import com.vaadin.annotations.Theme;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.terminal.WrappedRequest;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -21,11 +22,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.Root;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 
-public class StyleCalendarApplication extends Application {
+@Theme("stylecalendartheme")
+public class StyleCalendarApplication extends Root {
 
     private static final String CENTERWIDTH = "700px";
     private static final long serialVersionUID = -2802197153513393573L;
@@ -34,16 +36,12 @@ public class StyleCalendarApplication extends Application {
     private StyleCalendarField styleCalendarField;
 
     @Override
-    public void init() {
-        final Window mainWindow = new Window("Stylecalendar Application");
-        setMainWindow(mainWindow);
-        setTheme("stylecalendartheme");
-
+    protected void init(WrappedRequest request) {
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSpacing(true);
         mainLayout.setMargin(true);
 
-        mainWindow.setContent(mainLayout);
+        setContent(mainLayout);
 
         final Label dateLabel = new Label("");
 
@@ -69,9 +67,9 @@ public class StyleCalendarApplication extends Application {
 
         setDateOptionsGenerator(greenList, redList, mainCalendar);
 
-        Layout options = createComponentOptionsPanel(greenList, redList);
+        Layout options = createComponentOptionsLayout(greenList, redList);
 
-        Layout startEnd = createDateRangePanel(mainCalendar);
+        Layout startEnd = createDateRangeLayout(mainCalendar);
 
         Panel mainCalendarPanel = new Panel("Main calendar");
         ((AbstractOrderedLayout) mainCalendarPanel.getContent())
@@ -98,12 +96,15 @@ public class StyleCalendarApplication extends Application {
         mainLayout.setComponentAlignment(optionsPanel, Alignment.TOP_CENTER);
     }
 
-    private Layout createDateRangePanel(final StyleCalendar mainCalendar) {
+    private Layout createDateRangeLayout(final StyleCalendar mainCalendar) {
         final StyleCalendar startDate = new StyleCalendar("Enabled dates start");
         final StyleCalendar endDate = new StyleCalendar("Enabled dates end");
 
         startDate.setImmediate(true);
         endDate.setImmediate(true);
+
+        startDate.setWidth("100%");
+        endDate.setWidth("100%");
 
         startDate.addListener(new Property.ValueChangeListener() {
 
@@ -112,7 +113,7 @@ public class StyleCalendarApplication extends Application {
             @Override
             public void valueChange(ValueChangeEvent event) {
                 mainCalendar.setEnabledDateRange((Date) event.getProperty()
-                        .getValue(), (Date) endDate.getValue());
+                        .getValue(), endDate.getValue());
             }
         });
 
@@ -122,7 +123,7 @@ public class StyleCalendarApplication extends Application {
 
             @Override
             public void valueChange(ValueChangeEvent event) {
-                mainCalendar.setEnabledDateRange((Date) startDate.getValue(),
+                mainCalendar.setEnabledDateRange(startDate.getValue(),
                         (Date) event.getProperty().getValue());
             }
         });
@@ -141,10 +142,10 @@ public class StyleCalendarApplication extends Application {
 
         VerticalLayout startEnd = new VerticalLayout();
         startEnd.setSpacing(true);
-        startEnd.setMargin(false, false, true, false);
         Label caption = new Label("Enabled date range");
         caption.setStyleName(Reindeer.LABEL_H2);
         HorizontalLayout startEndCalendars = new HorizontalLayout();
+        startEndCalendars.setWidth("100%");
         startEndCalendars.setSpacing(true);
 
         startEndCalendars.addComponent(startDate);
@@ -155,12 +156,12 @@ public class StyleCalendarApplication extends Application {
                 "Use these two calendars to set the range for enabled dates in the main calendar."));
         startEnd.addComponent(startEndCalendars);
         startEnd.addComponent(reset);
-        startEnd.setWidth(CENTERWIDTH);
+        startEnd.setWidth("100%");
 
         return startEnd;
     }
 
-    private Layout createComponentOptionsPanel(final List<Date> greenList,
+    private Layout createComponentOptionsLayout(final List<Date> greenList,
             final List<Date> redList) {
         Label caption = new Label("Other options");
         caption.setStyleName(Reindeer.LABEL_H2);
@@ -299,7 +300,7 @@ public class StyleCalendarApplication extends Application {
 
             @Override
             public void buttonClick(ClickEvent event) {
-                Date selected = (Date) mainCalendar.getValue();
+                Date selected = mainCalendar.getValue();
                 if (selected != null) {
                     greenList.remove(selected);
                     redList.add(selected);
@@ -314,7 +315,7 @@ public class StyleCalendarApplication extends Application {
 
             @Override
             public void buttonClick(ClickEvent event) {
-                Date selected = (Date) mainCalendar.getValue();
+                Date selected = mainCalendar.getValue();
                 if (selected != null) {
                     redList.remove(selected);
                     greenList.add(selected);
@@ -329,7 +330,7 @@ public class StyleCalendarApplication extends Application {
 
             @Override
             public void buttonClick(ClickEvent event) {
-                Date selected = (Date) mainCalendar.getValue();
+                Date selected = mainCalendar.getValue();
                 if (selected != null) {
                     if (disabledList.contains(selected)) {
                         disabledList.remove(selected);

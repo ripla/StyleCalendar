@@ -1,4 +1,4 @@
-package org.vaadin.risto.stylecalendar.widgetset.client.ui;
+package org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar;
 
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Label;
