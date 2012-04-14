@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarFieldRpc;
 import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarFieldState;
 
 import com.vaadin.data.Property;
@@ -28,7 +29,27 @@ public class StyleCalendarField extends AbstractField<Date> implements
 
     private String nullRepresentation;
 
+    public StyleCalendarField() {
+        registerRpc(new StyleCalendarFieldRpc() {
+
+            private static final long serialVersionUID = -7360943504520630519L;
+
+            @Override
+            public void popupVisibilityChanged(boolean visible) {
+                setShowPopup(visible);
+
+            }
+
+            @Override
+            public void setValue(String value) {
+                handleValueFromClient(value);
+            }
+
+        });
+    }
+
     public StyleCalendarField(String caption) {
+        this();
         setCaption(caption);
     }
 
@@ -126,25 +147,6 @@ public class StyleCalendarField extends AbstractField<Date> implements
         }
     }
 
-    // TODO
-    // @Override
-    // public void changeVariables(Object source, Map<String, Object> variables)
-    // {
-    // super.changeVariables(source, variables);
-    //
-    // if (variables.containsKey("showPopup")
-    // && (Boolean) variables.get("showPopup") && !isShowPopup()) {
-    // setShowPopup(true);
-    //
-    // } else if (variables.containsKey("showPopup")
-    // && !((Boolean) variables.get("showPopup")) && isShowPopup()) {
-    // setShowPopup(false);
-    //
-    // } else if (variables.containsKey("value")) {
-    // handleValueFromClient((String) variables.get("value"));
-    // }
-    // }
-
     protected void handleValueFromClient(String valueFromClient) {
         try {
             DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT,
@@ -158,7 +160,9 @@ public class StyleCalendarField extends AbstractField<Date> implements
 
     protected void setShowPopup(boolean showPopup) {
         this.showPopup = showPopup;
-        if (!showPopup) {
+        if (showPopup && internalCalendar == null) {
+            internalCalendar = getNewStyleCalendar();
+        } else if (!showPopup && internalCalendar != null) {
             removeStyleCalendar(internalCalendar);
             internalCalendar = null;
         }
