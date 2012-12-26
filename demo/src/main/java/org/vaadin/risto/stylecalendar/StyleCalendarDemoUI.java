@@ -265,21 +265,6 @@ public class StyleCalendarDemoUI extends UI {
                     }
                 });
 
-        CheckBox immediate = new CheckBox("Set Immediate");
-        immediate.setImmediate(true);
-        immediate.addValueChangeListener(new Property.ValueChangeListener() {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                mainCalendar.setImmediate((Boolean) event.getProperty()
-                        .getValue());
-
-            }
-        });
-        immediate.setValue(Boolean.TRUE);
-
         final NativeSelect locales = new NativeSelect("Locale");
         locales.setNullSelectionAllowed(false);
         locales.setImmediate(true);
@@ -363,7 +348,6 @@ public class StyleCalendarDemoUI extends UI {
         hl2.addComponent(renderHeader);
         hl2.addComponent(renderControls);
         hl2.addComponent(renderWeekNumbers);
-        hl2.addComponent(immediate);
         hl2.setSpacing(true);
 
         HorizontalLayout hl3 = new HorizontalLayout();
