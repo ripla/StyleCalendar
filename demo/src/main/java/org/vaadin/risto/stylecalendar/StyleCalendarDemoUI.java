@@ -11,8 +11,8 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.terminal.WrappedRequest;
-import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.server.Page;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -22,12 +22,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.Root;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.Reindeer;
 
 @Theme("stylecalendartheme")
-public class StyleCalendarApplication extends Root {
+public class StyleCalendarDemoUI extends UI {
 
     private static final String CENTERWIDTH = "700px";
     private static final long serialVersionUID = -2802197153513393573L;
@@ -36,8 +36,8 @@ public class StyleCalendarApplication extends Root {
     private StyleCalendarField styleCalendarField;
 
     @Override
-    protected void init(WrappedRequest request) {
-        setCaption("StyleCalendar demo");
+    protected void init(VaadinRequest request) {
+        Page.getCurrent().setTitle("StyleCalendar demo");
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSpacing(true);
         mainLayout.setMargin(true);
@@ -53,7 +53,7 @@ public class StyleCalendarApplication extends Root {
         styleCalendarField = new StyleCalendarField("StyleCalendarField");
         styleCalendarField.setNullRepresentation("");
 
-        mainCalendar.addListener(new Property.ValueChangeListener() {
+        mainCalendar.addValueChangeListener(new Property.ValueChangeListener() {
 
             private static final long serialVersionUID = -4914236743301835604L;
 
@@ -73,21 +73,27 @@ public class StyleCalendarApplication extends Root {
         Layout startEnd = createDateRangeLayout(mainCalendar);
 
         Panel mainCalendarPanel = new Panel("Main calendar");
-        ((AbstractOrderedLayout) mainCalendarPanel.getContent())
-                .setSpacing(true);
+        VerticalLayout mainCalendarLayout = new VerticalLayout();
+        mainCalendarLayout.setMargin(true);
+        mainCalendarLayout.setSpacing(true);
+        mainCalendarPanel.setContent(mainCalendarLayout);
         mainCalendarPanel.setWidth(CENTERWIDTH);
-        mainCalendarPanel.addComponent(new Label(
-                "All the component options affect this calendar only."));
-        mainCalendarPanel.addComponent(mainCalendar);
-        mainCalendarPanel.addComponent(dateLabel);
 
-        mainCalendarPanel.addComponent(styleCalendarField);
+        mainCalendarLayout.addComponent(new Label(
+                "All the component options affect this calendar only."));
+        mainCalendarLayout.addComponent(mainCalendar);
+        mainCalendarLayout.addComponent(dateLabel);
+
+        mainCalendarLayout.addComponent(styleCalendarField);
 
         Panel optionsPanel = new Panel("Component options");
-        ((AbstractOrderedLayout) optionsPanel.getContent()).setSpacing(true);
+        VerticalLayout optionsLayout = new VerticalLayout();
+        optionsLayout.setMargin(true);
+        optionsLayout.setSpacing(true);
+        optionsPanel.setContent(optionsLayout);
         optionsPanel.setWidth(CENTERWIDTH);
-        optionsPanel.addComponent(startEnd);
-        optionsPanel.addComponent(options);
+        optionsLayout.addComponent(startEnd);
+        optionsLayout.addComponent(options);
 
         mainLayout.addComponent(mainCalendarPanel);
         mainLayout.addComponent(optionsPanel);
@@ -107,7 +113,7 @@ public class StyleCalendarApplication extends Root {
         startDate.setWidth("100%");
         endDate.setWidth("100%");
 
-        startDate.addListener(new Property.ValueChangeListener() {
+        startDate.addValueChangeListener(new Property.ValueChangeListener() {
 
             private static final long serialVersionUID = 5451403327381090983L;
 
@@ -118,7 +124,7 @@ public class StyleCalendarApplication extends Root {
             }
         });
 
-        endDate.addListener(new Property.ValueChangeListener() {
+        endDate.addValueChangeListener(new Property.ValueChangeListener() {
 
             private static final long serialVersionUID = -6600207899150787566L;
 
@@ -130,7 +136,7 @@ public class StyleCalendarApplication extends Root {
         });
 
         Button reset = new Button("Reset disabled dates");
-        reset.addListener(new Button.ClickListener() {
+        reset.addClickListener(new Button.ClickListener() {
 
             private static final long serialVersionUID = -6445668268341479730L;
 
@@ -162,13 +168,14 @@ public class StyleCalendarApplication extends Root {
         return startEnd;
     }
 
+    @SuppressWarnings("unchecked")
     private Layout createComponentOptionsLayout(final List<Date> greenList,
             final List<Date> redList) {
         Label caption = new Label("Other options");
         caption.setStyleName(Reindeer.LABEL_H2);
 
         Button prevMonth = new Button("Previous month");
-        prevMonth.addListener(new Button.ClickListener() {
+        prevMonth.addClickListener(new Button.ClickListener() {
 
             private static final long serialVersionUID = 5302233151902004930L;
 
@@ -179,7 +186,7 @@ public class StyleCalendarApplication extends Root {
         });
 
         Button nextMonth = new Button("Next month");
-        nextMonth.addListener(new Button.ClickListener() {
+        nextMonth.addClickListener(new Button.ClickListener() {
 
             private static final long serialVersionUID = 1375120288648378326L;
 
@@ -190,7 +197,7 @@ public class StyleCalendarApplication extends Root {
         });
 
         Button prevYear = new Button("Previous year");
-        prevYear.addListener(new Button.ClickListener() {
+        prevYear.addClickListener(new Button.ClickListener() {
 
             private static final long serialVersionUID = 5302233151902004930L;
 
@@ -201,7 +208,7 @@ public class StyleCalendarApplication extends Root {
         });
 
         Button nextYear = new Button("Next year");
-        nextYear.addListener(new Button.ClickListener() {
+        nextYear.addClickListener(new Button.ClickListener() {
 
             private static final long serialVersionUID = 1375120288648378326L;
 
@@ -214,7 +221,7 @@ public class StyleCalendarApplication extends Root {
         CheckBox renderHeader = new CheckBox("Render header");
         renderHeader.setValue(true);
         renderHeader.setImmediate(true);
-        renderHeader.addListener(new Property.ValueChangeListener() {
+        renderHeader.addValueChangeListener(new Property.ValueChangeListener() {
 
             private static final long serialVersionUID = 1L;
 
@@ -229,36 +236,38 @@ public class StyleCalendarApplication extends Root {
         CheckBox renderControls = new CheckBox("Render controls");
         renderControls.setValue(true);
         renderControls.setImmediate(true);
-        renderControls.addListener(new Property.ValueChangeListener() {
+        renderControls
+                .addValueChangeListener(new Property.ValueChangeListener() {
 
-            private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 1L;
 
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                mainCalendar.setRenderControls((Boolean) event.getProperty()
-                        .getValue());
+                    @Override
+                    public void valueChange(ValueChangeEvent event) {
+                        mainCalendar.setRenderControls((Boolean) event
+                                .getProperty().getValue());
 
-            }
-        });
+                    }
+                });
 
         CheckBox renderWeekNumbers = new CheckBox("Render weeknumbers");
         renderWeekNumbers.setValue(true);
         renderWeekNumbers.setImmediate(true);
-        renderWeekNumbers.addListener(new Property.ValueChangeListener() {
+        renderWeekNumbers
+                .addValueChangeListener(new Property.ValueChangeListener() {
 
-            private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 1L;
 
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                mainCalendar.setRenderWeekNumbers((Boolean) event.getProperty()
-                        .getValue());
+                    @Override
+                    public void valueChange(ValueChangeEvent event) {
+                        mainCalendar.setRenderWeekNumbers((Boolean) event
+                                .getProperty().getValue());
 
-            }
-        });
+                    }
+                });
 
         CheckBox immediate = new CheckBox("Set Immediate");
         immediate.setImmediate(true);
-        immediate.addListener(new Property.ValueChangeListener() {
+        immediate.addValueChangeListener(new Property.ValueChangeListener() {
 
             private static final long serialVersionUID = 1L;
 
@@ -279,7 +288,7 @@ public class StyleCalendarApplication extends Root {
                 .setValue(new Locale("fi", "FI"));
         locales.addItem("UK").getItemProperty("locale").setValue(Locale.UK);
         locales.addItem("US").getItemProperty("locale").setValue(Locale.US);
-        locales.addListener(new Property.ValueChangeListener() {
+        locales.addValueChangeListener(new Property.ValueChangeListener() {
 
             private static final long serialVersionUID = 4267830073546299627L;
 
@@ -296,7 +305,7 @@ public class StyleCalendarApplication extends Root {
         locales.select("Finnish");
 
         Button makeRed = new Button("Style selected red");
-        makeRed.addListener(new Button.ClickListener() {
+        makeRed.addClickListener(new Button.ClickListener() {
             private static final long serialVersionUID = 2751283318694896800L;
 
             @Override
@@ -305,13 +314,13 @@ public class StyleCalendarApplication extends Root {
                 if (selected != null) {
                     greenList.remove(selected);
                     redList.add(selected);
-                    mainCalendar.requestRepaint();
+                    mainCalendar.markAsDirty();
                 }
             }
         });
 
         Button makeGreen = new Button("Style selected green");
-        makeGreen.addListener(new Button.ClickListener() {
+        makeGreen.addClickListener(new Button.ClickListener() {
             private static final long serialVersionUID = 2751283318694896800L;
 
             @Override
@@ -320,13 +329,13 @@ public class StyleCalendarApplication extends Root {
                 if (selected != null) {
                     redList.remove(selected);
                     greenList.add(selected);
-                    mainCalendar.requestRepaint();
+                    mainCalendar.markAsDirty();
                 }
             }
         });
 
         Button makeDisabled = new Button("Enable/disable selected");
-        makeDisabled.addListener(new Button.ClickListener() {
+        makeDisabled.addClickListener(new Button.ClickListener() {
             private static final long serialVersionUID = 2751283318694896800L;
 
             @Override
@@ -338,7 +347,7 @@ public class StyleCalendarApplication extends Root {
                     } else {
                         disabledList.add(selected);
                     }
-                    mainCalendar.requestRepaint();
+                    mainCalendar.markAsDirty();
                 }
             }
         });

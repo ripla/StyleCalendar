@@ -19,8 +19,8 @@ import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
-import com.vaadin.terminal.gwt.client.VTooltip;
-import com.vaadin.terminal.gwt.client.ui.VOverlay;
+import com.vaadin.client.VTooltip;
+import com.vaadin.client.ui.VOverlay;
 
 public class VStyleCalendarField extends TextBox implements Iterable<Widget> {
 
@@ -201,7 +201,7 @@ public class VStyleCalendarField extends TextBox implements Iterable<Widget> {
          */
         @Override
         public void updateShadowSizeAndPosition() {
-            super.updateShadowSizeAndPosition();
+            super.positionOrSizeUpdated();
         }
 
     }

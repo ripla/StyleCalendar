@@ -4,11 +4,13 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
 
 import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarFieldRpc;
 import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarFieldState;
 
 import com.vaadin.data.Property;
+import com.vaadin.data.util.converter.Converter;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HasComponents;
@@ -25,9 +27,10 @@ public class StyleCalendarField extends AbstractField<Date> implements
     private static final long serialVersionUID = 7509453410070681818L;
 
     private StyleCalendar internalCalendar;
-    private boolean showPopup;
 
     private String nullRepresentation;
+
+    private Converter<String, Date> dateConverter;
 
     public StyleCalendarField() {
         registerRpc(new StyleCalendarFieldRpc() {
@@ -42,10 +45,23 @@ public class StyleCalendarField extends AbstractField<Date> implements
 
             @Override
             public void setValue(String value) {
-                handleValueFromClient(value);
+                StyleCalendarField.this.setValue(getDateConverter()
+                        .convertToModel(value, getLocale()));
             }
 
         });
+
+        setDateConverter(new DefaultDateConverter(this));
+
+    }
+
+    public void setDateConverter(Converter<String, Date> dateConverter) {
+        this.dateConverter = dateConverter;
+        markAsDirty();
+    }
+
+    public Converter<String, Date> getDateConverter() {
+        return dateConverter;
     }
 
     public StyleCalendarField(String caption) {
@@ -59,19 +75,14 @@ public class StyleCalendarField extends AbstractField<Date> implements
     }
 
     @Override
-    public void updateState() {
-        super.updateState();
+    public void beforeClientResponse(boolean initial) {
+        super.beforeClientResponse(initial);
 
         String paintValue = getPaintValue();
 
         getState().setFieldValue(paintValue);
 
         getState().setShowPopup(isShowPopup());
-    }
-
-    @Override
-    public boolean isComponentVisible(Component childComponent) {
-        return isShowPopup();
     }
 
     protected String getPaintValue() {
@@ -100,14 +111,14 @@ public class StyleCalendarField extends AbstractField<Date> implements
             calendar.setShowingDate(getValue());
         }
 
-        calendar.addListener(new Property.ValueChangeListener() {
+        calendar.addValueChangeListener(new Property.ValueChangeListener() {
 
             private static final long serialVersionUID = 8127366932646297743L;
 
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                StyleCalendarField.this
-                        .setValue(event.getProperty().getValue());
+                StyleCalendarField.this.setValue((Date) event.getProperty()
+                        .getValue());
             }
         });
 
@@ -119,7 +130,7 @@ public class StyleCalendarField extends AbstractField<Date> implements
 
     protected void removeStyleCalendar(StyleCalendar calendar) {
         calendar.setParent(null);
-        calendar.removeListener((ValueChangeListener) this);
+        calendar.removeValueChangeListener(this);
     }
 
     /*
@@ -138,39 +149,27 @@ public class StyleCalendarField extends AbstractField<Date> implements
      * @see com.vaadin.ui.AbstractField#setValue(java.lang.Object)
      */
     @Override
-    public void setValue(Object newValue) {
+    public void setValue(Date newValue) {
         super.setValue(newValue);
 
         if (internalCalendar != null) {
             internalCalendar.setValue(newValue);
-            internalCalendar.setShowingDate((Date) newValue);
-        }
-    }
-
-    protected void handleValueFromClient(String valueFromClient) {
-        try {
-            DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT,
-                    getLocale());
-            Date value = format.parse(valueFromClient);
-            setValue(value);
-        } catch (ParseException e) {
-
+            internalCalendar.setShowingDate(newValue);
         }
     }
 
     protected void setShowPopup(boolean showPopup) {
-        this.showPopup = showPopup;
+        getState().setShowPopup(showPopup);
         if (showPopup && internalCalendar == null) {
             internalCalendar = getNewStyleCalendar();
         } else if (!showPopup && internalCalendar != null) {
             removeStyleCalendar(internalCalendar);
             internalCalendar = null;
         }
-        requestRepaint();
     }
 
     protected boolean isShowPopup() {
-        return showPopup;
+        return getState().isShowPopup();
     }
 
     @Override
@@ -214,15 +213,60 @@ public class StyleCalendarField extends AbstractField<Date> implements
         return super.getValue();
     }
 
-    @Override
-    public void requestRepaintAll() {
-        if (internalCalendar != null) {
-            internalCalendar.requestRepaint();
-        }
-    }
+    /**
+     * Default converter for StyleCalendar values. Uses locale and
+     * {@link DateFormat#SHORT} to format/parse.
+     * 
+     * @author Risto Yrjänä / Vaadin
+     * 
+     */
+    public static class DefaultDateConverter implements Converter<String, Date> {
 
-    @Override
-    public Iterator<Component> getComponentIterator() {
-        return iterator();
+        private static final long serialVersionUID = 6263000342241390757L;
+        private final StyleCalendarField field;
+
+        public DefaultDateConverter(StyleCalendarField field) {
+            this.field = field;
+        }
+
+        @Override
+        public Date convertToModel(String value, Locale locale)
+                throws com.vaadin.data.util.converter.Converter.ConversionException {
+            DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT,
+                    locale);
+            try {
+                return format.parse(value);
+            } catch (ParseException e) {
+                throw new ConversionException(e);
+            }
+        }
+
+        @Override
+        public String convertToPresentation(Date value, Locale locale)
+                throws com.vaadin.data.util.converter.Converter.ConversionException {
+            if (value == null) {
+                if (field.getNullRepresentation() != null) {
+                    return field.getNullRepresentation();
+
+                } else {
+                    return "null";
+                }
+
+            } else {
+                DateFormat format = DateFormat.getDateInstance(
+                        DateFormat.SHORT, locale);
+                return format.format(value);
+            }
+        }
+
+        @Override
+        public Class<Date> getModelType() {
+            return Date.class;
+        }
+
+        @Override
+        public Class<String> getPresentationType() {
+            return String.class;
+        }
     }
 }

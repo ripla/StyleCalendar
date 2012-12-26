@@ -1,0 +1,13 @@
+@import "../reindeer/reindeer.scss";
+
+.stylecalendartheme { 
+	@include reindeer; 
+	.red div { 
+		background-color:#E61E6E;
+	}
+
+	.green div {
+		background-color: #40B527;
+	}
+
+}

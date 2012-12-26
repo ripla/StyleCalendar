@@ -3,3 +3,5 @@
 .classpath
 build
 .gradle*
+widgetsets
+gwt-unitCache

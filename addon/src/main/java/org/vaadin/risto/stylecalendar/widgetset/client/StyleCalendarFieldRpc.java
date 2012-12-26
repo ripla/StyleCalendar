@@ -1,6 +1,6 @@
 package org.vaadin.risto.stylecalendar.widgetset.client;
 
-import com.vaadin.terminal.gwt.client.communication.ServerRpc;
+import com.vaadin.shared.communication.ServerRpc;
 
 public interface StyleCalendarFieldRpc extends ServerRpc {
 

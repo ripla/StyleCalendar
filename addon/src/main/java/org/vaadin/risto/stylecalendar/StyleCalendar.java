@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarServerRpc;
+import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarRpc;
 import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarState;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarControl;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarDay;
@@ -30,12 +30,6 @@ public class StyleCalendar extends AbstractField<Date> {
     private static final long serialVersionUID = 7797206568110243067L;
 
     private DateOptionsGenerator dateOptionsGenerator;
-
-    private boolean renderControls;
-
-    private boolean renderHeader;
-
-    private boolean renderWeekNumbers;
 
     private Date showingDate = null;
 
@@ -61,7 +55,7 @@ public class StyleCalendar extends AbstractField<Date> {
 
         setShowingDate(new Date());
 
-        registerRpc(new StyleCalendarServerRpc() {
+        registerRpc(new StyleCalendarRpc() {
 
             private static final long serialVersionUID = -3223360435699819161L;
 
@@ -123,8 +117,8 @@ public class StyleCalendar extends AbstractField<Date> {
     }
 
     @Override
-    public void updateState() {
-        super.updateState();
+    public void beforeClientResponse(boolean initial) {
+        super.beforeClientResponse(initial);
 
         // init calendar and date related variables
         Date selectedDate = getValue();
@@ -284,7 +278,7 @@ public class StyleCalendar extends AbstractField<Date> {
     public void setDateOptionsGenerator(
             DateOptionsGenerator dateOptionsGenerator) {
         this.dateOptionsGenerator = dateOptionsGenerator;
-        requestRepaint();
+        markAsDirty();
     }
 
     /**
@@ -300,8 +294,7 @@ public class StyleCalendar extends AbstractField<Date> {
      * @param renderControls
      */
     public void setRenderControls(boolean renderControls) {
-        this.renderControls = renderControls;
-        requestRepaint();
+        getState().setRenderControls(renderControls);
     }
 
     /**
@@ -310,7 +303,7 @@ public class StyleCalendar extends AbstractField<Date> {
      * @return the renderControls
      */
     public boolean isRenderControls() {
-        return renderControls;
+        return getState().isRenderControls();
     }
 
     /**
@@ -320,8 +313,7 @@ public class StyleCalendar extends AbstractField<Date> {
      *            the renderHeader to set
      */
     public void setRenderHeader(boolean renderHeader) {
-        this.renderHeader = renderHeader;
-        requestRepaint();
+        getState().setRenderHeader(renderHeader);
     }
 
     /**
@@ -330,18 +322,7 @@ public class StyleCalendar extends AbstractField<Date> {
      * @return the renderHeader
      */
     public boolean isRenderHeader() {
-        return renderHeader;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.vaadin.ui.AbstractComponent#setLocale(java.util.Locale)
-     */
-    @Override
-    public void setLocale(Locale locale) {
-        super.setLocale(locale);
-        requestRepaint();
+        return getState().isRenderHeader();
     }
 
     /**
@@ -350,8 +331,7 @@ public class StyleCalendar extends AbstractField<Date> {
      * @param renderWeekNumbers
      */
     public void setRenderWeekNumbers(boolean renderWeekNumbers) {
-        this.renderWeekNumbers = renderWeekNumbers;
-        requestRepaint();
+        getState().setRenderWeekNumbers(renderWeekNumbers);
     }
 
     /**
@@ -360,7 +340,7 @@ public class StyleCalendar extends AbstractField<Date> {
      * @return the renderWeekNumbers
      */
     public boolean isRenderWeekNumbers() {
-        return renderWeekNumbers;
+        return getState().isRenderWeekNumbers();
     }
 
     /**
@@ -418,7 +398,7 @@ public class StyleCalendar extends AbstractField<Date> {
      */
     public void setShowingDate(Date monthToShow) {
         showingDate = monthToShow;
-        requestRepaint();
+        markAsDirty();
     }
 
     /**
@@ -440,7 +420,7 @@ public class StyleCalendar extends AbstractField<Date> {
     public void setEnabledDateRange(Date start, Date end) {
         enabledStartDate = start;
         enabledEndDate = end;
-        requestRepaint();
+        markAsDirty();
     }
 
     protected Calendar getCalendarInstance() {

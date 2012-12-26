@@ -1,6 +1,8 @@
 package org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.DayClickEvent;
@@ -13,6 +15,7 @@ import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.PrevMon
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -55,6 +58,8 @@ public class VStyleCalendar extends SimplePanel {
 
     private List<VStyleCalendarWeek> weeks;
 
+    private final HashMap<Element, DayLabel> dayElements;
+
     /**
      * The constructor should first call super() to initialize the component and
      * then handle any initialization relevant to Vaadin.
@@ -65,6 +70,8 @@ public class VStyleCalendar extends SimplePanel {
         setStyleName(CLASSNAME);
 
         handlerRegistrations = new ArrayList<HandlerRegistration>();
+
+        dayElements = new HashMap<Element, DayLabel>();
     }
 
     public void redraw() {
@@ -74,6 +81,8 @@ public class VStyleCalendar extends SimplePanel {
             }
             handlerRegistrations.clear();
         }
+
+        dayElements.clear();
 
         FlexTable calendarBody = new FlexTable();
         calendarBody.setCellSpacing(0);
@@ -100,7 +109,7 @@ public class VStyleCalendar extends SimplePanel {
     }
 
     /**
-     * Send day clicked message to server. Immediateness depends on server-side.
+     * Send day clicked message to server.
      * 
      * @param day
      * @param dayIndex
@@ -110,16 +119,14 @@ public class VStyleCalendar extends SimplePanel {
     }
 
     /**
-     * Send previous clicked message to server. Control messages are always
-     * immediate.
+     * Send previous clicked message to server.
      */
     public void prevClick() {
         fireEvent(new PrevMonthClickEvent());
     }
 
     /**
-     * Send next clicked message to server. Control messages are always
-     * immediate.
+     * Send next clicked message to server.
      */
     public void nextClick() {
         fireEvent(new NextMonthClickEvent());
@@ -148,8 +155,7 @@ public class VStyleCalendar extends SimplePanel {
     }
 
     /**
-     * Render the header information from the given UIDL to the given row in the
-     * given table.
+     * Render the header information from the current state to the given table.
      * 
      * @param childUIDL
      * @param headerRow
@@ -318,7 +324,7 @@ public class VStyleCalendar extends SimplePanel {
             dayStyle = "day";
         }
 
-        Label dayLabel = new DayLabel(dayIndex, this);
+        DayLabel dayLabel = new DayLabel(day.getTooltip());
         dayLabel.setText(Integer.toString(dayNumber));
 
         if (day.isClickable() && !day.isDisabled()) {
@@ -330,11 +336,7 @@ public class VStyleCalendar extends SimplePanel {
             dayStyle += " disabled";
         }
 
-        if (!isNullOrEmpty(day.getTooltip())) {
-            // TODO
-            // TooltipInfo dayTooltip = new TooltipInfo(day.getTooltip());
-            // client.registerTooltip(this, dayIndex, dayTooltip);
-        }
+        dayElements.put(dayLabel.getElement(), dayLabel);
 
         cb.setWidget(dayRow, dayColumn, dayLabel);
 
@@ -451,5 +453,13 @@ public class VStyleCalendar extends SimplePanel {
     public HandlerRegistration addDayClickHandler(
             DayClickHandler dayClickHandler) {
         return addHandler(dayClickHandler, DayClickEvent.getType());
+    }
+
+    public Collection<DayLabel> getDayWidgets() {
+        return dayElements.values();
+    }
+
+    public DayLabel getDayLabel(com.google.gwt.dom.client.Element element) {
+        return dayElements.get(element);
     }
 }

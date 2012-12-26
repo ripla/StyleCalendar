@@ -7,7 +7,7 @@ import java.util.List;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarControl;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarWeek;
 
-import com.vaadin.terminal.gwt.client.AbstractFieldState;
+import com.vaadin.shared.AbstractFieldState;
 
 public class StyleCalendarState extends AbstractFieldState {
 

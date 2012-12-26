@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.vaadin.risto.stylecalendar.StyleCalendar;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.DayLabel;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendar;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.DayClickEvent;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.DayClickHandler;
@@ -12,12 +13,14 @@ import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.MonthCl
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.PrevMonthClickEvent;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Widget;
-import com.vaadin.terminal.gwt.client.communication.RpcProxy;
-import com.vaadin.terminal.gwt.client.communication.StateChangeEvent;
-import com.vaadin.terminal.gwt.client.ui.AbstractFieldConnector;
-import com.vaadin.terminal.gwt.client.ui.Connect;
+import com.vaadin.client.TooltipInfo;
+import com.vaadin.client.communication.RpcProxy;
+import com.vaadin.client.communication.StateChangeEvent;
+import com.vaadin.client.ui.AbstractFieldConnector;
+import com.vaadin.shared.ui.Connect;
 
 @Connect(StyleCalendar.class)
 public class StyleCalendarConnector extends AbstractFieldConnector {
@@ -51,7 +54,7 @@ public class StyleCalendarConnector extends AbstractFieldConnector {
     @Override
     public void onStateChanged(StateChangeEvent stateChangeEvent) {
 
-        // set global rendering attributes from base tag
+        // set global rendering attributes from base state
         getWidget().setRenderWeekNumbers(getState().isRenderWeekNumbers());
         getWidget().setRenderHeader(getState().isRenderHeader());
         getWidget().setRenderControls(getState().isRenderControls());
@@ -69,6 +72,9 @@ public class StyleCalendarConnector extends AbstractFieldConnector {
 
         getWidget().redraw();
 
+        for (DayLabel widget : getWidget().getDayWidgets()) {
+            getConnection().getVTooltip().connectHandlersToWidget(widget);
+        }
         super.onStateChanged(stateChangeEvent);
     }
 
@@ -78,8 +84,8 @@ public class StyleCalendarConnector extends AbstractFieldConnector {
 
         handlerRegistrations = new ArrayList<HandlerRegistration>();
 
-        final StyleCalendarServerRpc rpcProxy = RpcProxy.create(
-                StyleCalendarServerRpc.class, this);
+        final StyleCalendarRpc rpcProxy = RpcProxy.create(
+                StyleCalendarRpc.class, this);
 
         handlerRegistrations.add(getWidget().addMonthClickHandler(
                 new MonthClickHandler() {
@@ -106,5 +112,15 @@ public class StyleCalendarConnector extends AbstractFieldConnector {
                     }
 
                 }));
+    }
+
+    @Override
+    public TooltipInfo getTooltipInfo(Element element) {
+        DayLabel label = getWidget().getDayLabel(element);
+        if (label != null) {
+            return new TooltipInfo(label.getTooltip());
+        } else {
+            return super.getTooltipInfo(element);
+        }
     }
 }

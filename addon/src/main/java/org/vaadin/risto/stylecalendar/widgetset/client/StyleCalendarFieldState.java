@@ -1,6 +1,6 @@
 package org.vaadin.risto.stylecalendar.widgetset.client;
 
-import com.vaadin.terminal.gwt.client.AbstractFieldState;
+import com.vaadin.shared.AbstractFieldState;
 
 public class StyleCalendarFieldState extends AbstractFieldState {
 
