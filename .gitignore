@@ -1,5 +1,5 @@
-/.settings
-/.project
-/.classpath
-/GWT development mode for StyleCalendar.launch
+.settings
+.project
+.classpath
 build
+.gradle*
