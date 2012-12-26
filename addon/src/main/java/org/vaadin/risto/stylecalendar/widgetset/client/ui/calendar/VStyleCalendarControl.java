@@ -1,7 +1,10 @@
 package org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar;
 
-public class VStyleCalendarControl {
+import java.io.Serializable;
 
+public class VStyleCalendarControl implements Serializable {
+
+    private static final long serialVersionUID = 2194350557619354990L;
     private String text;
     private boolean enabled;
 

@@ -1,6 +1,10 @@
 package org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar;
 
-public class VStyleCalendarDay {
+import java.io.Serializable;
+
+public class VStyleCalendarDay implements Serializable {
+
+    private static final long serialVersionUID = -2847418714090484578L;
 
     private Integer number;
     private Integer index;
@@ -56,5 +60,4 @@ public class VStyleCalendarDay {
     public void setTooltip(String tooltip) {
         this.tooltip = tooltip;
     }
-
 }

@@ -1,10 +1,14 @@
 package org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class VStyleCalendarWeek {
+public class VStyleCalendarWeek implements Serializable {
+
+    private static final long serialVersionUID = -8224871323421938497L;
+
     private String weekNumber;
     private List<VStyleCalendarDay> days;
 
