@@ -41,7 +41,6 @@ public class StyleCalendarDemoUI extends UI {
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSpacing(true);
         mainLayout.setMargin(true);
-
         setContent(mainLayout);
 
         final Label dateLabel = new Label("");

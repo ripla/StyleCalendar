@@ -127,6 +127,7 @@ public class VStyleCalendarField extends TextBox implements Iterable<Widget> {
 
         public CustomPopup() {
             super(true, false, true); // autoHide, not modal, dropshadow
+            setOwner(VStyleCalendarField.this);
         }
 
         @Override
@@ -192,13 +193,6 @@ public class VStyleCalendarField extends TextBox implements Iterable<Widget> {
             return super.getContainerElement();
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.vaadin.terminal.gwt.client.ui.VOverlay#updateShadowSizeAndPosition
-         * ()
-         */
         @Override
         public void updateShadowSizeAndPosition() {
             super.positionOrSizeUpdated();
