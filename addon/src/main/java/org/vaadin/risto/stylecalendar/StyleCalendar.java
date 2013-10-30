@@ -43,6 +43,8 @@ public class StyleCalendar extends AbstractField<Date> {
 
     private boolean prevMonthEnabled;
 
+    private boolean deselectOnClick;
+
     /**
      * Create a new StyleCalendar instance. Header, controls and week numbers
      * are rendered by default.
@@ -81,7 +83,12 @@ public class StyleCalendar extends AbstractField<Date> {
             public void dayClicked(Integer clickedDay, Integer clickedDayIndex) {
                 if (!isDisabled(clickedDayIndex)) {
                     Date selectedDate = constructNewDateValue(clickedDay);
-                    setValue(selectedDate);
+                    if (isDeselectOnClick()
+                            && dayEquals(selectedDate, getValue())) {
+                        setValue(null);
+                    } else {
+                        setValue(selectedDate);
+                    }
                 } else {
                     // Ch-ch-cheater. Do nothing.
                 }
@@ -194,6 +201,7 @@ public class StyleCalendar extends AbstractField<Date> {
                 if (dayEquals(calendar.getTime(), selectedDate)) {
                     dayStyle.append(" ");
                     dayStyle.append("selected");
+                    day.selected = true;
                 }
 
                 if (monthEquals(calendar.getTime(), showingDate)) {
@@ -623,5 +631,13 @@ public class StyleCalendar extends AbstractField<Date> {
         }
 
         return set;
+    }
+
+    public boolean isDeselectOnClick() {
+        return deselectOnClick;
+    }
+
+    public void setDeselectOnClick(boolean deselectOnClick) {
+        this.deselectOnClick = deselectOnClick;
     }
 }

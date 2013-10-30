@@ -43,7 +43,7 @@ public class StyleCalendarDemoUI extends UI {
         mainLayout.setMargin(true);
         setContent(mainLayout);
 
-        final Label dateLabel = new Label("");
+        final Label dateLabel = new Label("Nothing selected");
 
         final List<Date> greenList = new ArrayList<Date>();
         final List<Date> redList = new ArrayList<Date>();
@@ -59,9 +59,13 @@ public class StyleCalendarDemoUI extends UI {
             @Override
             public void valueChange(ValueChangeEvent event) {
                 Date selected = (Date) event.getProperty().getValue();
-                DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM,
-                        mainCalendar.getLocale());
-                dateLabel.setValue("Date selected " + df.format(selected));
+                if (selected != null) {
+                    DateFormat df = DateFormat.getDateInstance(
+                            DateFormat.MEDIUM, mainCalendar.getLocale());
+                    dateLabel.setValue("Date selected " + df.format(selected));
+                } else {
+                    dateLabel.setValue("Nothing selected");
+                }
             }
         });
 
@@ -260,7 +264,21 @@ public class StyleCalendarDemoUI extends UI {
                     public void valueChange(ValueChangeEvent event) {
                         mainCalendar.setRenderWeekNumbers((Boolean) event
                                 .getProperty().getValue());
+                    }
+                });
 
+        CheckBox deselectOnClick = new CheckBox("Deselect date on click");
+        deselectOnClick.setValue(false);
+        deselectOnClick.setImmediate(true);
+        deselectOnClick
+                .addValueChangeListener(new Property.ValueChangeListener() {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public void valueChange(ValueChangeEvent event) {
+                        mainCalendar.setDeselectOnClick((Boolean) event
+                                .getProperty().getValue());
                     }
                 });
 
@@ -336,35 +354,27 @@ public class StyleCalendarDemoUI extends UI {
             }
         });
 
-        HorizontalLayout hl1 = new HorizontalLayout();
-        hl1.addComponent(prevMonth);
-        hl1.addComponent(nextMonth);
-        hl1.addComponent(prevYear);
-        hl1.addComponent(nextYear);
-        hl1.setSpacing(true);
+        HorizontalLayout controlButtons = new HorizontalLayout();
+        controlButtons.addComponents(prevMonth, nextMonth, prevYear, nextYear);
+        controlButtons.setSpacing(true);
 
-        HorizontalLayout hl2 = new HorizontalLayout();
-        hl2.addComponent(renderHeader);
-        hl2.addComponent(renderControls);
-        hl2.addComponent(renderWeekNumbers);
-        hl2.setSpacing(true);
+        HorizontalLayout optionCheckboxes = new HorizontalLayout();
+        optionCheckboxes.addComponents(renderHeader, renderControls,
+                renderWeekNumbers, deselectOnClick);
+        optionCheckboxes.setSpacing(true);
 
-        HorizontalLayout hl3 = new HorizontalLayout();
-        hl3.addComponent(locales);
-        hl3.addComponent(makeRed);
-        hl3.addComponent(makeGreen);
-        hl3.addComponent(makeDisabled);
-        hl3.setSpacing(true);
-        hl3.setComponentAlignment(makeRed, Alignment.BOTTOM_CENTER);
-        hl3.setComponentAlignment(makeGreen, Alignment.BOTTOM_CENTER);
-        hl3.setComponentAlignment(makeDisabled, Alignment.BOTTOM_CENTER);
+        HorizontalLayout otherOptions = new HorizontalLayout();
+        otherOptions.addComponents(locales, makeRed, makeGreen, makeDisabled);
+        otherOptions.setSpacing(true);
+        otherOptions.setComponentAlignment(makeRed, Alignment.BOTTOM_CENTER);
+        otherOptions.setComponentAlignment(makeGreen, Alignment.BOTTOM_CENTER);
+        otherOptions.setComponentAlignment(makeDisabled,
+                Alignment.BOTTOM_CENTER);
 
         VerticalLayout options = new VerticalLayout();
         options.setSpacing(true);
-        options.addComponent(caption);
-        options.addComponent(hl1);
-        options.addComponent(hl2);
-        options.addComponent(hl3);
+        options.addComponents(caption, controlButtons, optionCheckboxes,
+                otherOptions);
         return options;
     }
 

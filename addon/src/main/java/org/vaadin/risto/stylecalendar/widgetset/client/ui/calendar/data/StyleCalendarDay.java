@@ -13,6 +13,8 @@ public class StyleCalendarDay implements Serializable {
     private boolean disabled;
     private String tooltip;
 
+    public boolean selected = false;
+
     public Integer getNumber() {
         return number;
     }

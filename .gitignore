@@ -6,3 +6,4 @@ build
 widgetsets
 gwt-unitCache
 target
+*.launch
