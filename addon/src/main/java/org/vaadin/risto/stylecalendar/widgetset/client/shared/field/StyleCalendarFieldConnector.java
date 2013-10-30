@@ -1,9 +1,9 @@
-package org.vaadin.risto.stylecalendar.widgetset.client;
+package org.vaadin.risto.stylecalendar.widgetset.client.shared.field;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.field.VStyleCalendarField;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.field.StyleCalendarFieldWidget;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.field.event.PopupVisibilityChangeHandler;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.field.event.PopupVisibilityChangedEvent;
 
@@ -33,7 +33,7 @@ public class StyleCalendarFieldConnector extends
 
     @Override
     protected Widget createWidget() {
-        return GWT.create(VStyleCalendarField.class);
+        return GWT.create(StyleCalendarFieldWidget.class);
     }
 
     @Override
@@ -42,8 +42,8 @@ public class StyleCalendarFieldConnector extends
     }
 
     @Override
-    public VStyleCalendarField getWidget() {
-        return (VStyleCalendarField) super.getWidget();
+    public StyleCalendarFieldWidget getWidget() {
+        return (StyleCalendarFieldWidget) super.getWidget();
     }
 
     @Override

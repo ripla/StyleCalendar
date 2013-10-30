@@ -1,11 +1,11 @@
-package org.vaadin.risto.stylecalendar.widgetset.client;
+package org.vaadin.risto.stylecalendar.widgetset.client.shared.calendar;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.vaadin.risto.stylecalendar.StyleCalendar;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.DayLabel;
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendar;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.StyleCalendarWidget;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.DayClickEvent;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.DayClickHandler;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.MonthClickEvent;
@@ -38,7 +38,7 @@ public class StyleCalendarConnector extends AbstractFieldConnector {
 
     @Override
     protected Widget createWidget() {
-        return GWT.create(VStyleCalendar.class);
+        return GWT.create(StyleCalendarWidget.class);
     }
 
     @Override
@@ -47,8 +47,8 @@ public class StyleCalendarConnector extends AbstractFieldConnector {
     }
 
     @Override
-    public VStyleCalendar getWidget() {
-        return (VStyleCalendar) super.getWidget();
+    public StyleCalendarWidget getWidget() {
+        return (StyleCalendarWidget) super.getWidget();
     }
 
     @Override

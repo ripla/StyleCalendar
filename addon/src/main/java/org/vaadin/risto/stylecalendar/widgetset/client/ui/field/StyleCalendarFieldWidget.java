@@ -22,13 +22,14 @@ import com.google.gwt.user.client.ui.Widget;
 import com.vaadin.client.VTooltip;
 import com.vaadin.client.ui.VOverlay;
 
-public class VStyleCalendarField extends TextBox implements Iterable<Widget> {
+public class StyleCalendarFieldWidget extends TextBox implements
+        Iterable<Widget> {
 
-    public static final String CLASSNAME = "v-stylecalendarfield";
+    public static final String CLASSNAME = "stylecalendarfield";
 
     private final CustomPopup popup;
 
-    public VStyleCalendarField() {
+    public StyleCalendarFieldWidget() {
         super();
 
         setStyleName(CLASSNAME);
@@ -127,7 +128,7 @@ public class VStyleCalendarField extends TextBox implements Iterable<Widget> {
 
         public CustomPopup() {
             super(true, false, true); // autoHide, not modal, dropshadow
-            setOwner(VStyleCalendarField.this);
+            setOwner(StyleCalendarFieldWidget.this);
         }
 
         @Override
@@ -178,7 +179,7 @@ public class VStyleCalendarField extends TextBox implements Iterable<Widget> {
             if (!isAttached() || hiding) {
                 return super.getParent();
             } else {
-                return VStyleCalendarField.this;
+                return StyleCalendarFieldWidget.this;
             }
         }
 

@@ -1,11 +1,11 @@
-package org.vaadin.risto.stylecalendar.widgetset.client;
+package org.vaadin.risto.stylecalendar.widgetset.client.shared.calendar;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarControl;
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarWeek;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarControl;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarWeek;
 
 import com.vaadin.shared.AbstractFieldState;
 
@@ -17,17 +17,17 @@ public class StyleCalendarState extends AbstractFieldState {
     private boolean renderHeader;
     private boolean renderControls;
 
-    private List<VStyleCalendarWeek> weeks;
+    private List<StyleCalendarWeek> weeks;
     private List<String> weekDayNames;
 
-    private VStyleCalendarControl previousMonthControl;
-    private VStyleCalendarControl nextMonthControl;
+    private StyleCalendarControl previousMonthControl;
+    private StyleCalendarControl nextMonthControl;
 
     private String currentMonth;
     private String currentYear;
 
     public StyleCalendarState() {
-        weeks = new ArrayList<VStyleCalendarWeek>();
+        weeks = new ArrayList<StyleCalendarWeek>();
         weekDayNames = new ArrayList<String>();
     }
 
@@ -55,15 +55,15 @@ public class StyleCalendarState extends AbstractFieldState {
         this.renderControls = renderControls;
     }
 
-    public List<VStyleCalendarWeek> getWeeks() {
+    public List<StyleCalendarWeek> getWeeks() {
         return Collections.unmodifiableList(weeks);
     }
 
-    public void setWeeks(List<VStyleCalendarWeek> weeks) {
+    public void setWeeks(List<StyleCalendarWeek> weeks) {
         this.weeks = weeks;
     }
 
-    public void addWeek(VStyleCalendarWeek week) {
+    public void addWeek(StyleCalendarWeek week) {
         weeks.add(week);
     }
 
@@ -87,20 +87,20 @@ public class StyleCalendarState extends AbstractFieldState {
         weekDayNames.clear();
     }
 
-    public VStyleCalendarControl getPreviousMonthControl() {
+    public StyleCalendarControl getPreviousMonthControl() {
         return previousMonthControl;
     }
 
     public void setPreviousMonthControl(
-            VStyleCalendarControl previousMonthControl) {
+            StyleCalendarControl previousMonthControl) {
         this.previousMonthControl = previousMonthControl;
     }
 
-    public VStyleCalendarControl getNextMonthControl() {
+    public StyleCalendarControl getNextMonthControl() {
         return nextMonthControl;
     }
 
-    public void setNextMonthControl(VStyleCalendarControl nextMonthControl) {
+    public void setNextMonthControl(StyleCalendarControl nextMonthControl) {
         this.nextMonthControl = nextMonthControl;
     }
 

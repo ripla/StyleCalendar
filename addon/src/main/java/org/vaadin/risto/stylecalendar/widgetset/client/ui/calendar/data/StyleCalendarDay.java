@@ -1,8 +1,8 @@
-package org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar;
+package org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data;
 
 import java.io.Serializable;
 
-public class VStyleCalendarDay implements Serializable {
+public class StyleCalendarDay implements Serializable {
 
     private static final long serialVersionUID = -2847418714090484578L;
 

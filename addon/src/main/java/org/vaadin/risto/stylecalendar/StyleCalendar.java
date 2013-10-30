@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarRpc;
-import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarState;
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarControl;
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarDay;
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.VStyleCalendarWeek;
+import org.vaadin.risto.stylecalendar.widgetset.client.shared.calendar.StyleCalendarRpc;
+import org.vaadin.risto.stylecalendar.widgetset.client.shared.calendar.StyleCalendarState;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarControl;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarDay;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarWeek;
 
 import com.vaadin.ui.AbstractField;
 
@@ -174,12 +174,12 @@ public class StyleCalendar extends AbstractField<Date> {
             // reset to the start of the week
             calendar.setTime(weekStartDate);
 
-            VStyleCalendarWeek week = new VStyleCalendarWeek();
+            StyleCalendarWeek week = new StyleCalendarWeek();
             week.setWeekNumber(Integer.toString(calendar
                     .get(Calendar.WEEK_OF_YEAR)));
 
             for (int dayNumber = 0; dayNumber < daysInWeek; dayNumber++) {
-                VStyleCalendarDay day = new VStyleCalendarDay();
+                StyleCalendarDay day = new StyleCalendarDay();
                 day.setNumber(calendar.get(Calendar.DAY_OF_MONTH));
                 day.setIndex(dayIndex);
 
@@ -253,13 +253,13 @@ public class StyleCalendar extends AbstractField<Date> {
 
         // render controls
         if (isRenderControls()) {
-            VStyleCalendarControl prevControl = new VStyleCalendarControl();
+            StyleCalendarControl prevControl = new StyleCalendarControl();
             prevControl.setText(getMonthCaption(calendar.getTime(), -1, false));
 
             prevControl.setEnabled(!isDisabledMonth(calendar.getTime(), -1));
             prevMonthEnabled = prevControl.isEnabled();
 
-            VStyleCalendarControl nextControl = new VStyleCalendarControl();
+            StyleCalendarControl nextControl = new StyleCalendarControl();
             nextControl.setText(getMonthCaption(calendar.getTime(), 1, false));
 
             nextControl.setEnabled(!isDisabledMonth(calendar.getTime(), 1));

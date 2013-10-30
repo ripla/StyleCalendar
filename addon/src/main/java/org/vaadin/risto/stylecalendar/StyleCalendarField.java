@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 
-import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarFieldRpc;
-import org.vaadin.risto.stylecalendar.widgetset.client.StyleCalendarFieldState;
+import org.vaadin.risto.stylecalendar.widgetset.client.shared.field.StyleCalendarFieldRpc;
+import org.vaadin.risto.stylecalendar.widgetset.client.shared.field.StyleCalendarFieldState;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.util.converter.Converter;

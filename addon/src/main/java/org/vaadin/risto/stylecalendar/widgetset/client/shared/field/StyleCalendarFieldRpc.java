@@ -1,4 +1,4 @@
-package org.vaadin.risto.stylecalendar.widgetset.client;
+package org.vaadin.risto.stylecalendar.widgetset.client.shared.field;
 
 import com.vaadin.shared.communication.ServerRpc;
 

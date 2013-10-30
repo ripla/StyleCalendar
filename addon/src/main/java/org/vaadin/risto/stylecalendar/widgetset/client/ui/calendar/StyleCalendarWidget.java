@@ -1,10 +1,13 @@
 package org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarControl;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarDay;
+import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarWeek;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.DayClickEvent;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.DayClickHandler;
 import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.event.MonthClickEvent;
@@ -27,10 +30,9 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class VStyleCalendar extends SimplePanel {
+public class StyleCalendarWidget extends SimplePanel {
 
-    /** Set the CSS class name to allow styling. */
-    public static final String CLASSNAME = "v-stylecalendar";
+    public static final String CLASSNAME = "stylecalendar";
 
     private static final String PREVMONTHCONTROL = "<<";
     private static final String NEXTMONTHCONTROL = ">>";
@@ -50,26 +52,20 @@ public class VStyleCalendar extends SimplePanel {
 
     private String currentMonth;
 
-    private VStyleCalendarControl previousMonthControl;
+    private StyleCalendarControl previousMonthControl;
 
-    private VStyleCalendarControl nextMonthControl;
+    private StyleCalendarControl nextMonthControl;
 
     private List<String> weekDayNames;
 
-    private List<VStyleCalendarWeek> weeks;
+    private List<StyleCalendarWeek> weeks;
 
     private final HashMap<Element, DayLabel> dayElements;
 
-    /**
-     * The constructor should first call super() to initialize the component and
-     * then handle any initialization relevant to Vaadin.
-     */
-    public VStyleCalendar() {
-        super();
-
+    public StyleCalendarWidget() {
         setStyleName(CLASSNAME);
 
-        handlerRegistrations = new ArrayList<HandlerRegistration>();
+        handlerRegistrations = new LinkedList<HandlerRegistration>();
 
         dayElements = new HashMap<Element, DayLabel>();
     }
@@ -97,7 +93,7 @@ public class VStyleCalendar extends SimplePanel {
 
         renderWeekDays(weekDayNames, calendarBody, weekdaysRow);
         int weekRow = weekdaysRow + 1;
-        for (VStyleCalendarWeek week : getWeeks()) {
+        for (StyleCalendarWeek week : getWeeks()) {
             renderWeek(week, calendarBody, weekRow++);
         }
 
@@ -135,7 +131,7 @@ public class VStyleCalendar extends SimplePanel {
     /**
      * @param weekDayNames
      */
-    private void renderWeekDays(List<String> weekDayNames, FlexTable cb,
+    protected void renderWeekDays(List<String> weekDayNames, FlexTable cb,
             int weekDayRow) {
         cb.getRowFormatter().setStylePrimaryName(weekDayRow, "weekdays");
 
@@ -161,7 +157,7 @@ public class VStyleCalendar extends SimplePanel {
      * @param headerRow
      * @param cb
      */
-    private void renderHeader(FlexTable cb) {
+    protected void renderHeader(FlexTable cb) {
 
         HorizontalPanel headerPanel = new HorizontalPanel();
 
@@ -208,12 +204,12 @@ public class VStyleCalendar extends SimplePanel {
         cb.setWidget(0, 0, headerPanel);
     }
 
-    private Widget renderPrevControl() {
+    protected Widget renderPrevControl() {
 
         FlowPanel controlPanel = new FlowPanel();
         controlPanel.setStylePrimaryName("prevcontrol");
 
-        InlineLabel controlSymbol = new InlineLabel(PREVMONTHCONTROL);
+        InlineLabel controlSymbol = new InlineLabel(getPrevMonthControlString());
         controlSymbol.setStylePrimaryName("control");
 
         InlineLabel controlCaption = new InlineLabel(
@@ -246,11 +242,16 @@ public class VStyleCalendar extends SimplePanel {
         return controlPanel;
     }
 
-    private Widget renderNextControl() {
+    protected String getPrevMonthControlString() {
+        return PREVMONTHCONTROL;
+    }
+
+    protected Widget renderNextControl() {
         FlowPanel controlPanel = new FlowPanel();
         controlPanel.setStylePrimaryName("nextcontrol");
 
-        InlineLabel controlSymbol = new InlineLabel(NEXTMONTHCONTROL);
+        InlineLabel controlSymbol = new InlineLabel(
+                getNexthMonthControlString());
         controlSymbol.setStylePrimaryName("control");
 
         InlineLabel controlCaption = new InlineLabel(getNextMonthControl()
@@ -283,7 +284,11 @@ public class VStyleCalendar extends SimplePanel {
         return controlPanel;
     }
 
-    private void renderWeek(VStyleCalendarWeek week, FlexTable cb, int weekRow) {
+    protected String getNexthMonthControlString() {
+        return NEXTMONTHCONTROL;
+    }
+
+    protected void renderWeek(StyleCalendarWeek week, FlexTable cb, int weekRow) {
 
         cb.getRowFormatter().setStylePrimaryName(weekRow, "week");
 
@@ -306,7 +311,7 @@ public class VStyleCalendar extends SimplePanel {
 
     }
 
-    private void renderDay(VStyleCalendarDay day, FlexTable cb, int dayRow,
+    protected void renderDay(StyleCalendarDay day, FlexTable cb, int dayRow,
             int dayColumn) {
 
         Integer dayNumber = day.getNumber();
@@ -346,14 +351,14 @@ public class VStyleCalendar extends SimplePanel {
                 HasVerticalAlignment.ALIGN_MIDDLE);
     }
 
-    private boolean isNullOrEmpty(String string) {
+    protected boolean isNullOrEmpty(String string) {
         return string == null || string.isEmpty();
     }
 
-    private class InternalDayClickHandler implements ClickHandler {
+    protected class InternalDayClickHandler implements ClickHandler {
 
-        private final int day;
-        private final int dayIndex;
+        protected final int day;
+        protected final int dayIndex;
 
         public InternalDayClickHandler(int day, int dayIndex) {
             this.day = day;
@@ -400,20 +405,20 @@ public class VStyleCalendar extends SimplePanel {
         return currentMonth;
     }
 
-    public VStyleCalendarControl getPreviousMonthControl() {
+    public StyleCalendarControl getPreviousMonthControl() {
         return previousMonthControl;
     }
 
     public void setPreviousMonthControl(
-            VStyleCalendarControl previousMonthControl) {
+            StyleCalendarControl previousMonthControl) {
         this.previousMonthControl = previousMonthControl;
     }
 
-    public void setNextMonthControl(VStyleCalendarControl nextMonthControl) {
+    public void setNextMonthControl(StyleCalendarControl nextMonthControl) {
         this.nextMonthControl = nextMonthControl;
     }
 
-    public VStyleCalendarControl getNextMonthControl() {
+    public StyleCalendarControl getNextMonthControl() {
         return nextMonthControl;
     }
 
@@ -425,11 +430,11 @@ public class VStyleCalendar extends SimplePanel {
         return weekDayNames;
     }
 
-    public void setWeeks(List<VStyleCalendarWeek> weeks) {
+    public void setWeeks(List<StyleCalendarWeek> weeks) {
         this.weeks = weeks;
     }
 
-    public List<VStyleCalendarWeek> getWeeks() {
+    public List<StyleCalendarWeek> getWeeks() {
         return weeks;
     }
 
