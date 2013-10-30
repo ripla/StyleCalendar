@@ -15,8 +15,8 @@
 		<init-param>
 			<description>
   		Vaadin application class to start</description>
-			<param-name>UI</param-name>
-			<param-value>org.vaadin.risto.stylecalendar.StyleCalendarDemoUI</param-value>
+			<param-name>UIProvider</param-name>
+			<param-value>org.vaadin.risto.stylecalendar.StyleCalendarDemoUIProvider</param-value>
 		</init-param>
 		<init-param>
 			<description>

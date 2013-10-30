@@ -1,15 +1,15 @@
+.v-stylecalendarfield {
+	border-color: #A2A3A4 #BCBDBE #D2D3D4;
+    border-radius: 3px 3px 3px 3px;
+    border-width: 1px;
+}
+
 .v-app .v-stylecalendarfield-popup {
 	background: none;
 	padding: 0;
 }
 
 .v-stylecalendarfield-popup .v-stylecalendar {
-	-moz-border-radius-topleft: 0;
-	-moz-border-radius-topright: 0;
-	
-	-webkit-border-top-left-radius: 0;
-	-webkit-border-top-right-radius: 0;
-	
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
