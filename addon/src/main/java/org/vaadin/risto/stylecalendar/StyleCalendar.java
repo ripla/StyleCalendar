@@ -143,6 +143,7 @@ public class StyleCalendar extends AbstractField<Date> {
         getState().setRenderWeekNumbers(isRenderWeekNumbers());
         getState().setRenderHeader(isRenderHeader());
         getState().setRenderControls(isRenderControls());
+        getState().hasTooltip = false;
 
         // render header
         if (isRenderHeader()) {
@@ -222,6 +223,7 @@ public class StyleCalendar extends AbstractField<Date> {
                             calendar.getTime(), this);
                     if (tooltip != null) {
                         day.setTooltip(tooltip);
+                        getState().hasTooltip = true;
                     }
                 }
 

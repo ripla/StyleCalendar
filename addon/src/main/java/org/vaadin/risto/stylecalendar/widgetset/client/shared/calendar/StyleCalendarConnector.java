@@ -115,12 +115,17 @@ public class StyleCalendarConnector extends AbstractFieldConnector {
     }
 
     @Override
+    public boolean hasTooltip() {
+        return getState().hasTooltip;
+    }
+
+    @Override
     public TooltipInfo getTooltipInfo(Element element) {
         DayLabel label = getWidget().getDayLabel(element);
         if (label != null) {
             return new TooltipInfo(label.getTooltip());
         } else {
-            return super.getTooltipInfo(element);
+            return null;
         }
     }
 }

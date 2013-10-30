@@ -26,6 +26,8 @@ public class StyleCalendarState extends AbstractFieldState {
     private String currentMonth;
     private String currentYear;
 
+    public boolean hasTooltip;
+
     public StyleCalendarState() {
         weeks = new ArrayList<StyleCalendarWeek>();
         weekDayNames = new ArrayList<String>();
