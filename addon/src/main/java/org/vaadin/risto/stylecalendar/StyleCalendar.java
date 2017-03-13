@@ -8,26 +8,22 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.vaadin.risto.stylecalendar.widgetset.client.shared.calendar.StyleCalendarRpc;
-import org.vaadin.risto.stylecalendar.widgetset.client.shared.calendar.StyleCalendarState;
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarControl;
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarDay;
-import org.vaadin.risto.stylecalendar.widgetset.client.ui.calendar.data.StyleCalendarWeek;
+import org.vaadin.risto.stylecalendar.client.shared.calendar.StyleCalendarRpc;
+import org.vaadin.risto.stylecalendar.client.shared.calendar.StyleCalendarState;
+import org.vaadin.risto.stylecalendar.client.ui.calendar.data.StyleCalendarControl;
+import org.vaadin.risto.stylecalendar.client.ui.calendar.data.StyleCalendarDay;
+import org.vaadin.risto.stylecalendar.client.ui.calendar.data.StyleCalendarWeek;
 
 import com.vaadin.ui.AbstractField;
 
 /**
- * 
  * StyleCalendar is designed to be a simple, easily stylable calendar component.
- * 
+ *
  * {@link DateOptionsGenerator} can be used to generate stylenames externally.
- * 
+ *
  * @author Risto Yrjänä / Vaadin
- * 
  */
 public class StyleCalendar extends AbstractField<Date> {
-
-    private static final long serialVersionUID = 7797206568110243067L;
 
     private DateOptionsGenerator dateOptionsGenerator;
 
@@ -59,14 +55,10 @@ public class StyleCalendar extends AbstractField<Date> {
 
         registerRpc(new StyleCalendarRpc() {
 
-            private static final long serialVersionUID = -3223360435699819161L;
-
             @Override
             public void previousMonthClicked() {
                 if (isPrevMonthAllowed()) {
                     showPreviousMonth();
-                } else {
-                    // Ch-ch-cheater. Do nothing.
                 }
             }
 
@@ -74,23 +66,20 @@ public class StyleCalendar extends AbstractField<Date> {
             public void nextMonthClicked() {
                 if (isNextMonthAllowed()) {
                     showNextMonth();
-                } else {
-                    // Ch-ch-cheater. Do nothing.
                 }
             }
 
             @Override
-            public void dayClicked(Integer clickedDay, Integer clickedDayIndex) {
+            public void dayClicked(Integer clickedDay,
+                    Integer clickedDayIndex) {
                 if (!isDisabled(clickedDayIndex)) {
                     Date selectedDate = constructNewDateValue(clickedDay);
-                    if (isDeselectOnClick()
-                            && dayEquals(selectedDate, getValue())) {
+                    if (isDeselectOnClick() &&
+                            dayEquals(selectedDate, getValue())) {
                         setValue(null);
                     } else {
                         setValue(selectedDate);
                     }
-                } else {
-                    // Ch-ch-cheater. Do nothing.
                 }
             }
         });
@@ -99,9 +88,9 @@ public class StyleCalendar extends AbstractField<Date> {
     /**
      * Create a new StyleCalendar instance. Header, controls and week numbers
      * are rendered by default.
-     * 
+     *
      * @param caption
-     *            components caption
+     *         components caption
      */
     public StyleCalendar(String caption) {
         this();
@@ -110,7 +99,7 @@ public class StyleCalendar extends AbstractField<Date> {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.vaadin.ui.AbstractField#getType()
      */
     @Override
@@ -130,11 +119,10 @@ public class StyleCalendar extends AbstractField<Date> {
         // init calendar and date related variables
         Date selectedDate = getValue();
         Date today = new Date();
-        Date showingDate = getShowingDate();
         Locale locale = getLocale();
 
         // for remembering disabled variables sent to client
-        disabledRenderedDays = new ArrayList<Integer>();
+        disabledRenderedDays = new ArrayList<>();
         nextMonthEnabled = true;
         prevMonthEnabled = true;
 
@@ -163,9 +151,9 @@ public class StyleCalendar extends AbstractField<Date> {
 
         getState().clearWeekDayNames();
         for (int weekday = 0; weekday < daysInWeek; weekday++) {
-            getState().addWeekDayName(
-                    calendarForWeekdays.getDisplayName(Calendar.DAY_OF_WEEK,
-                            Calendar.SHORT, locale));
+            getState().addWeekDayName(calendarForWeekdays
+                    .getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT,
+                            locale));
             calendarForWeekdays.add(Calendar.DAY_OF_WEEK, 1);
         }
 
@@ -183,8 +171,8 @@ public class StyleCalendar extends AbstractField<Date> {
             calendar.setTime(weekStartDate);
 
             StyleCalendarWeek week = new StyleCalendarWeek();
-            week.setWeekNumber(Integer.toString(calendar
-                    .get(Calendar.WEEK_OF_YEAR)));
+            week.setWeekNumber(
+                    Integer.toString(calendar.get(Calendar.WEEK_OF_YEAR)));
 
             for (int dayNumber = 0; dayNumber < daysInWeek; dayNumber++) {
                 StyleCalendarDay day = new StyleCalendarDay();
@@ -204,7 +192,7 @@ public class StyleCalendar extends AbstractField<Date> {
                     day.selected = true;
                 }
 
-                if (monthEquals(calendar.getTime(), showingDate)) {
+                if (monthEquals(calendar.getTime(), getShowingDate())) {
                     dayStyle.append(" ");
                     dayStyle.append("currentmonth");
                     day.setClickable(true);
@@ -227,8 +215,8 @@ public class StyleCalendar extends AbstractField<Date> {
                         dayStyle.append(generatedStyle);
                     }
 
-                    String tooltip = getDateOptionsGenerator().getTooltip(
-                            calendar.getTime(), this);
+                    String tooltip = getDateOptionsGenerator()
+                            .getTooltip(calendar.getTime(), this);
                     if (tooltip != null) {
                         day.setTooltip(tooltip);
                         getState().hasTooltip = true;
@@ -281,9 +269,17 @@ public class StyleCalendar extends AbstractField<Date> {
     }
 
     /**
+     * @return the dateOptionsGenerator currently used
+     */
+    public DateOptionsGenerator getDateOptionsGenerator() {
+        return dateOptionsGenerator;
+    }
+
+    /**
      * Set the style generator used. This is called on every day shown.
-     * 
+     *
      * @param dateOptionsGenerator
+     *         the {@link DateOptionsGenerator} to use
      */
     public void setDateOptionsGenerator(
             DateOptionsGenerator dateOptionsGenerator) {
@@ -292,24 +288,8 @@ public class StyleCalendar extends AbstractField<Date> {
     }
 
     /**
-     * @return the dateOptionsGenerator currently used
-     */
-    public DateOptionsGenerator getDateOptionsGenerator() {
-        return dateOptionsGenerator;
-    }
-
-    /**
-     * Set if the controls (next/prev month) be rendered.
-     * 
-     * @param renderControls
-     */
-    public void setRenderControls(boolean renderControls) {
-        getState().setRenderControls(renderControls);
-    }
-
-    /**
      * Check if the controls are currently rendered.
-     * 
+     *
      * @return the renderControls
      */
     public boolean isRenderControls() {
@@ -317,18 +297,18 @@ public class StyleCalendar extends AbstractField<Date> {
     }
 
     /**
-     * Set if the header (current month + controls) should be rendered.
-     * 
-     * @param renderHeader
-     *            the renderHeader to set
+     * Set if the controls (next/prev month) be rendered.
+     *
+     * @param renderControls
+     *         true if month controls should be rendered
      */
-    public void setRenderHeader(boolean renderHeader) {
-        getState().setRenderHeader(renderHeader);
+    public void setRenderControls(boolean renderControls) {
+        getState().setRenderControls(renderControls);
     }
 
     /**
      * Check if the header is currently rendered.
-     * 
+     *
      * @return the renderHeader
      */
     public boolean isRenderHeader() {
@@ -336,21 +316,32 @@ public class StyleCalendar extends AbstractField<Date> {
     }
 
     /**
-     * Set if week numbers should be rendered.
-     * 
-     * @param renderWeekNumbers
+     * Set if the header (current month + controls) should be rendered.
+     *
+     * @param renderHeader
+     *         the renderHeader to set
      */
-    public void setRenderWeekNumbers(boolean renderWeekNumbers) {
-        getState().setRenderWeekNumbers(renderWeekNumbers);
+    public void setRenderHeader(boolean renderHeader) {
+        getState().setRenderHeader(renderHeader);
     }
 
     /**
      * Check if the week numbers are currently rendered.
-     * 
+     *
      * @return the renderWeekNumbers
      */
     public boolean isRenderWeekNumbers() {
         return getState().isRenderWeekNumbers();
+    }
+
+    /**
+     * Set if week numbers should be rendered.
+     *
+     * @param renderWeekNumbers
+     *         true if week numbers should be rendered
+     */
+    public void setRenderWeekNumbers(boolean renderWeekNumbers) {
+        getState().setRenderWeekNumbers(renderWeekNumbers);
     }
 
     /**
@@ -402,16 +393,6 @@ public class StyleCalendar extends AbstractField<Date> {
     }
 
     /**
-     * Set the month to be shown.
-     * 
-     * @param showingDate
-     */
-    public void setShowingDate(Date monthToShow) {
-        showingDate = monthToShow;
-        markAsDirty();
-    }
-
-    /**
      * @return the month currently shown
      */
     public Date getShowingDate() {
@@ -419,13 +400,24 @@ public class StyleCalendar extends AbstractField<Date> {
     }
 
     /**
+     * Set the month to be shown.
+     *
+     * @param monthToShow
+     *         a date in the month which to show
+     */
+    public void setShowingDate(Date monthToShow) {
+        showingDate = monthToShow;
+        markAsDirty();
+    }
+
+    /**
      * Set the date range that the user can select. If either date is null,
      * selection to that direction is not limited.
-     * 
+     *
      * @param start
-     *            start of enabled dates, inclusive
+     *         start of enabled dates, inclusive
      * @param end
-     *            end of enabled dates, inclusive
+     *         end of enabled dates, inclusive
      */
     public void setEnabledDateRange(Date start, Date end) {
         enabledStartDate = start;
@@ -444,16 +436,18 @@ public class StyleCalendar extends AbstractField<Date> {
         return calendar;
     }
 
-    protected String getMonthCaption(Date date, int amount, boolean longCaption) {
+    protected String getMonthCaption(Date date, int amount,
+            boolean longCaption) {
         Calendar calendar = getCalendarInstance();
         calendar.setTime(date);
 
         calendar.roll(Calendar.MONTH, amount);
 
-        int displayLength = longCaption ? Calendar.LONG : Calendar.SHORT;
+        int displayLength = longCaption ? Calendar.LONG_STANDALONE : Calendar
+                .SHORT_STANDALONE;
 
-        return calendar.getDisplayName(Calendar.MONTH, displayLength,
-                getLocale());
+        return calendar
+                .getDisplayName(Calendar.MONTH, displayLength, getLocale());
     }
 
     protected boolean dayEquals(Date day1, Date day2) {
@@ -502,9 +496,8 @@ public class StyleCalendar extends AbstractField<Date> {
     }
 
     protected Calendar constructNewCalendarValue(int newDay) {
-        Date showingDate = getShowingDate();
         Calendar calendar = getCalendarInstance();
-        calendar.setTime(showingDate);
+        calendar.setTime(getShowingDate());
 
         calendar.set(Calendar.DAY_OF_MONTH, newDay);
 
@@ -519,8 +512,8 @@ public class StyleCalendar extends AbstractField<Date> {
     }
 
     /**
-     * @param clickedDay
-     *            the day of month that was clicked
+     * @param clickedDayIndex
+     *         the day of month that was clicked
      * @return true if the day is disabled, false otherwise
      */
     protected boolean isDisabled(int clickedDayIndex) {
@@ -542,9 +535,13 @@ public class StyleCalendar extends AbstractField<Date> {
     }
 
     /**
-     * @param time
-     * @param i
-     * @return
+     * Check if a month is disabled
+     *
+     * @param date
+     *         a date in the current month
+     * @param amount
+     *         how much to go forward or back to check
+     * @return true if the month should be disabled
      */
     protected boolean isDisabledMonth(Date date, int amount) {
         Calendar calendar = getCalendarInstance();
@@ -552,30 +549,29 @@ public class StyleCalendar extends AbstractField<Date> {
         calendar.add(Calendar.MONTH, amount);
         Date month = calendar.getTime();
 
-        if (enabledStartDate != null) {
-            if (month.before(enabledStartDate)
-                    && !monthEquals(month, enabledStartDate)) {
-                return true;
-            }
+        if (enabledStartDate != null && month.before(enabledStartDate) &&
+                !monthEquals(month, enabledStartDate)) {
+            return true;
         }
 
-        if (enabledEndDate != null) {
-            if (month.after(enabledEndDate)
-                    && !monthEquals(month, enabledEndDate)) {
-                return true;
-            }
+        if (enabledEndDate != null && month.after(enabledEndDate) &&
+                !monthEquals(month, enabledEndDate)) {
+            return true;
         }
 
         return false;
     }
 
     /**
-     * @param time
-     * @return
+     * Check if a given date should be disabled
+     *
+     * @param date
+     *         the date to check
+     * @return true if the given date should be disabled
      */
     protected boolean isDisabledDate(Date date) {
-        if (getDateOptionsGenerator() != null
-                && getDateOptionsGenerator().isDateDisabled(date, this)) {
+        if (getDateOptionsGenerator() != null &&
+                getDateOptionsGenerator().isDateDisabled(date, this)) {
             return true;
 
         } else {
@@ -585,15 +581,16 @@ public class StyleCalendar extends AbstractField<Date> {
             Calendar today = getResetCalendarInstance(date);
 
             if (enabledStartDate != null) {
-                Calendar enabledStart = getResetCalendarInstance(enabledStartDate);
-                isAfterStart = today.after(enabledStart)
-                        || dayEquals(date, enabledStartDate);
+                Calendar enabledStart = getResetCalendarInstance(
+                        enabledStartDate);
+                isAfterStart = today.after(enabledStart) ||
+                        dayEquals(date, enabledStartDate);
             }
 
             if (enabledEndDate != null) {
                 Calendar enabledEnd = getResetCalendarInstance(enabledEndDate);
-                isBeforeEnd = today.before(enabledEnd)
-                        || dayEquals(date, enabledEndDate);
+                isBeforeEnd = today.before(enabledEnd) ||
+                        dayEquals(date, enabledEndDate);
             }
 
             // if the date is between the enabled range
@@ -618,7 +615,7 @@ public class StyleCalendar extends AbstractField<Date> {
         calendar.set(Calendar.DAY_OF_MONTH, 1);
 
         calendar.getTime();// force recalc to overcome some strange behaviour of
-                           // the java calendar
+        // the java calendar
 
         int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
         int firstDayOfWeek = calendar.getFirstDayOfWeek();

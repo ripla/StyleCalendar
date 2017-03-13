@@ -7,3 +7,6 @@ widgetsets
 gwt-unitCache
 target
 *.launch
+.idea
+styles.css.gz
+styles.css

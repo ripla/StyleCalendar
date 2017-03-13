@@ -1,0 +1,101 @@
+@mixin stylecalendar {
+  .stylecalendar {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+
+    border: 1px solid #d9d8cb;
+    background-color: white;
+
+    span, div {
+      font-family: Arial, Helvetica, Verdana, sans-serif;
+    }
+
+    table {
+      border-color: transparent;
+      border-collapse: collapse;
+    }
+
+    .weekdays TD, .weeknumber, .day {
+      width: 2.2em;
+    }
+
+    .header {
+      table {
+        border: none;
+        width: 90%;
+        margin-left: 5%;
+      }
+
+      .control {
+        font-weight: bold;
+      }
+    }
+
+    .weekdays {
+      border-bottom: 1px solid black;
+    }
+
+    .week {
+      background-color: white;
+
+      .othermonth {
+        color: #e4e3da;
+        cursor: default;
+      }
+
+      .gwt-Label {
+        border: 1px solid transparent;
+      }
+
+      .selected .gwt-Label {
+        border: 1px solid #ee7c08;
+      }
+
+      .today {
+        background-color: #fad8b5;
+      }
+    }
+
+    .weeknumber {
+      background-color: #d9d8cb;
+    }
+
+    /*
+    .stylecalendar .week .weekend {
+        background-color: #f4f4f0;
+    }
+    */
+
+    .prevcontrol,
+    .nextcontrol,
+    .day {
+      cursor: pointer;
+    }
+
+    .prevcontrol-disabled,
+    .nextcontrol-disabled {
+      cursor: default;
+      color: #e4e3da;
+    }
+
+    .prevcontrol,
+    .nextcontrol {
+      width: 5em;
+    }
+
+    td.day {
+      &:hover {
+        background-color: #80daf8;
+      }
+
+      &.disabled {
+        cursor: default;
+        color: #e4e3da;
+
+        &:hover {
+          background-color: transparent;
+        }
+      }
+    }
+  }
+}

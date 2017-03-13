@@ -1,0 +1,14 @@
+@import "../valo/valo.scss";
+
+@mixin demotheme {
+  @include valo;
+
+  .red div {
+    background-color:#E61E6E;
+  }
+
+  .green div {
+    background-color: #40B527;
+  }
+
+}

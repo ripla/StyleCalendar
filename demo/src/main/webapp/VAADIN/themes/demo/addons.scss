@@ -1,0 +1,13 @@
+/* This file is automatically managed and will be overwritten from time to time. */
+/* Do not manually edit this file. */
+
+/* Provided by stylecalendar-2.3.0.jar */
+@import "../../..//VAADIN/addons/stylecalendar/stylecalendarfield.scss";
+
+
+/* Import and include this mixin into your project theme to include the addon themes */
+@mixin addons {
+	@include stylecalendar;
+	@include stylecalendarfield;
+}
+
